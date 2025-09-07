@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoleController;
+
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\MaterialRequisitionController;
+use App\Http\Controllers\RequisitionController;
+
+
+
+Route::get('/', function () {
+    return view('layouts.dashboard');
+})->name('dashboard'); // <-- yahan name add kiya
+
+Route::get('/add-new', function () {
+    return view('material.add-new');
+})->name('add-new'); // <-- yahan name add kiya
+Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
+Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
+Route::get('/departments/{id}', [DepartmentController::class, 'show'])->name('departments.show');
+Route::put('/departments/{id}', [DepartmentController::class, 'update'])->name('departments.update');
+Route::delete('/departments/{id}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
+
+
+Route::get('/requisitions/add-new', [RequisitionController::class, 'create'])->name('requisitions.add-new');
+Route::get('/requisitions', [RequisitionController::class, 'index'])->name('requisitions.index');
+Route::get('/requisitions/data', [RequisitionController::class, 'data'])->name('requisitions.data');
+
+Route::post('/requisitions', [RequisitionController::class, 'store'])->name('requisitions.store');
+Route::get('/requisitions/{id}', [RequisitionController::class, 'show'])->name('requisitions.show');
+Route::get('/requisitions/{id}/edit', [RequisitionController::class, 'edit'])->name('requisitions.edit');
+
+Route::put('/requisitions/{id}', [RequisitionController::class, 'update'])->name('requisitions.update');
+Route::delete('/requisitions/{id}', [RequisitionController::class, 'destroy'])->name('requisitions.destroy');
