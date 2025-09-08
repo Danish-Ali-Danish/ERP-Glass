@@ -67,6 +67,29 @@
                                 </div>
                             </li>
 
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('lpos.*') ? '' : 'collapsed' }}" 
+                                href="#sidebarLpos" data-bs-toggle="collapse" role="button"
+                                aria-expanded="{{ request()->routeIs('lpos.*') ? 'true' : 'false' }}" 
+                                aria-controls="sidebarLpos">
+                                    <i class="iconoir-shopping-bag menu-icon"></i>
+                                    <span>Local Purchase Orders</span>
+                                </a>
+                                <div class="collapse {{ request()->routeIs('lpos.*') ? 'show' : '' }}" id="sidebarLpos">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ request()->routeIs('lpos.create') ? 'active' : '' }}" 
+                                            href="{{ route('lpos.create') }}">Add New</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ request()->routeIs('lpos.index') ? 'active' : '' }}" 
+                                            href="{{ route('lpos.index') }}">Saved LPOs</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
 
 
 

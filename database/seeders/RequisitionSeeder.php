@@ -16,7 +16,7 @@ class RequisitionSeeder extends Seeder
         Requisition::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $total = 10000; // 1 lakh
+        $total = 100; // 1 lakh
         $batchSize = 500; // batching
 
         for ($i = 0; $i < $total; $i += $batchSize) {

@@ -7,6 +7,8 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\MaterialRequisitionController;
 use App\Http\Controllers\RequisitionController;
 
+use App\Http\Controllers\LpoController;
+use App\Http\Controllers\GrnController;
 
 
 Route::get('/', function () {
@@ -33,3 +35,6 @@ Route::get('/requisitions/{id}/edit', [RequisitionController::class, 'edit'])->n
 
 Route::put('/requisitions/{id}', [RequisitionController::class, 'update'])->name('requisitions.update');
 Route::delete('/requisitions/{id}', [RequisitionController::class, 'destroy'])->name('requisitions.destroy');
+
+Route::resource('lpos', LpoController::class);
+Route::resource('grns', GrnController::class);
