@@ -9,7 +9,7 @@
                 <h4 class="page-title">New LPO</h4>
                 <div class="">
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Expert Power Glass Ind</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{route('lpos.index')}}">All LPOs</a></li>
                         <li class="breadcrumb-item active">New LPO</li>
                     </ol>
@@ -40,8 +40,9 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">LPO No</label>
-                            <input type="text" class="form-control" id="lpoNo" required />
+                            <input type="text" class="form-control" id="lpoNo" value="{{ $lpoNo }}" readonly />
                         </div>
+
                         <div class="col-md-3">
                             <label class="form-label">Contact No</label>
                             <input type="text" class="form-control" id="contactNo" />
@@ -131,15 +132,15 @@
         <div class="col-md-4 offset-md-8">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between py-1">
                         <strong>Sub Total:</strong>
                         <span id="subTotal">0.00</span>
                     </div>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between py-1">
                         <strong>VAT (5%):</strong>
                         <span id="vat">0.00</span>
                     </div>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between py-1">
                         <strong>NET Total:</strong>
                         <span id="netTotal">0.00</span>
                     </div>
@@ -232,11 +233,10 @@ $(document).ready(function(){
 
         editIndex = index;
         $('#addItemBtn').text('Update');
-            document.getElementById("addItemBtn").scrollIntoView({ 
-        behavior: "smooth", 
-        block: "center" 
-    });
-
+        document.getElementById("addItemBtn").scrollIntoView({ 
+            behavior: "smooth", 
+            block: "center" 
+        });
     });
 
     // Delete Item
@@ -267,7 +267,6 @@ $(document).ready(function(){
             supplier_name: $('#supplierName').val(),
             date: $('#date').val(),
             contact_person: $('#contactPerson').val(),
-            lpo_no: $('#lpoNo').val(),
             contact_no: $('#contactNo').val(),
             pi_no: $('#piNo').val(),
             supplier_trn: $('#supplierTrn').val(),
@@ -283,12 +282,14 @@ $(document).ready(function(){
             type: "POST",
             data: data,
             success: function(res){
-                Swal.fire('Success', res.message, 'success');
-                items = [];
-                renderItemsTable();
-                $('#lpoForm')[0].reset();
-                $('#itemForm')[0].reset();
-                $('#addItemBtn').text('Add');
+                Swal.fire({
+                    title: 'Success',
+                    text: res.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload(); // 🔄 Refresh karega aur naya LPO No show karega
+                });
             },
             error: function(err){
                 Swal.fire('Error','Validation failed','error');

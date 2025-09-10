@@ -44,6 +44,14 @@
                                     <span>Departments</span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('items.index') ? 'active' : '' }}" 
+                                href="{{ route('items.index') }}">
+                                    <i class="iconoir-box menu-icon"></i>
+                                    <span>Items</span>
+                                </a>
+                            </li>
+
                             <!-- Material Requisitions (collapsible with routes) -->
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('requisitions.*') ? '' : 'collapsed' }}" 
