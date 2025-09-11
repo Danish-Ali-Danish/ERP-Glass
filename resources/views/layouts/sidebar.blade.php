@@ -44,6 +44,14 @@
                                     <span>Departments</span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('items.index') ? 'active' : '' }}" 
+                                href="{{ route('items.index') }}">
+                                    <i class="iconoir-box menu-icon"></i>
+                                    <span>Items</span>
+                                </a>
+                            </li>
+
                             <!-- Material Requisitions (collapsible with routes) -->
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('requisitions.*') ? '' : 'collapsed' }}" 
@@ -88,6 +96,28 @@
                                     </ul>
                                 </div>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('grns.*') ? '' : 'collapsed' }}" 
+                                href="#sidebarGRNs" data-bs-toggle="collapse" role="button"
+                                aria-expanded="{{ request()->routeIs('grns.*') ? 'true' : 'false' }}" 
+                                aria-controls="sidebarGRNs">
+                                    <i class="iconoir-receipt menu-icon"></i>
+                                    <span>GRNs</span>
+                                </a>
+                                <div class="collapse {{ request()->routeIs('grns.*') ? 'show' : '' }}" id="sidebarGRNs">
+                                    <ul class="nav flex-column">
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ request()->routeIs('grns.create') ? 'active' : '' }}" 
+                                            href="{{ route('grns.create') }}">Add New</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ request()->routeIs('grns.index') ? 'active' : '' }}" 
+                                            href="{{ route('grns.index') }}">All GRNs</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
 
 
 

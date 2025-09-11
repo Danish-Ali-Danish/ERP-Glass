@@ -2,33 +2,17 @@
 @section('content')
 <div class="container-fluid">
 
-
-     <div class="row">
-        <div class="col-sm-12">
-            <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
-                <h4 class="page-title">New Requisitions</h4>
-                <div class="">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Expert Power Glass Ind</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('requisitions.index')}}">All Requisitions</a></li>
-                        <li class="breadcrumb-item active">New Requisitions</li>
-                    </ol>
-                </div>                                
-            </div>
-        </div>
-    </div>   
-
-    <!-- Project / General Info Form -->
+    <!-- General Info -->
     <form id="projectForm">
         @csrf
         <div class="row g-3">
             <div class="col-12">
                 <div class="card mb-3 shadow-sm">
-                    <div class="card-header ">General Information</div>
+                    <div class="card-header">General Information</div>
                     <div class="card-body row g-3">
                         <div class="col-md-3">
                             <label class="form-label">Req No</label>
-                            <input type="text" class="form-control" id="reqNo" required />
+                            <input type="text" class="form-control" id="reqNo" required value="{{ $reqNo }}" readonly />
                             <small class="text-danger d-none" id="errorReqNo"></small>
                         </div>
                         <div class="col-md-3">
@@ -63,7 +47,7 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Remarks</label>
-                            <input type="textarea" class="form-control" id="remarks" />
+                            <input type="text" class="form-control" id="remarks" />
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Delivery Required Date</label>
@@ -76,35 +60,42 @@
     </form>
 
     <!-- Item Form -->
-    <form id="itemForm">
+    <form id="itemForm" class="mb-3">
         <div class="row g-3">
             <div class="col-12">
                 <div class="card shadow-sm">
-                    <div class="card-header ">Add Items</div>
+                    <div class="card-header">Add Items</div>
                     <div class="card-body row g-3">
-                        <div class="col-md-2">
+
+                        <div class="col-md-3 position-relative">
                             <label>Item Code</label>
-                            <input type="number" class="form-control" id="itemCode">
+                            <input type="text" class="form-control" id="itemCodeInput" placeholder="Search Item Code...">
+                            <div class="dropdown-menu search-dropdown"></div>
                             <small class="text-danger d-none" id="errorItemCode"></small>
                         </div>
-                        <div class="col-md-4">
+
+                        <div class="col-md-4 position-relative">
                             <label>Description</label>
-                            <input type="text" class="form-control" id="itemDesc">
+                            <input type="text" class="form-control" id="itemDescInput" placeholder="Search Description...">
+                            <div class="dropdown-menu search-dropdown"></div>
                             <small class="text-danger d-none" id="errorItemDesc"></small>
                         </div>
+
                         <div class="col-md-2">
                             <label>UOM</label>
-                            <input type="text" class="form-control" id="itemUom">
-                            <small class="text-danger d-none" id="errorItemUom"></small>
+                            <input type="text" class="form-control" id="itemUom" readonly>
                         </div>
+
                         <div class="col-md-2">
                             <label>Quantity</label>
                             <input type="number" class="form-control" id="itemQty">
                             <small class="text-danger d-none" id="errorItemQty"></small>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
+
+                        <div class="col-md-1 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary w-100" id="addItemBtn">Add Item</button>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -115,8 +106,8 @@
     <div class="row g-3">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header ">Items List</div>
-                <div class="card-body ">
+                <div class="card-header">Items List</div>
+                <div class="card-body">
                     <table class="table datatables" id="itemsTable">
                         <thead class="table-light">
                             <tr>
@@ -136,19 +127,28 @@
     </div>
 
     <button class="btn btn-success mt-3" id="saveReqBtn">Save Requisition</button>
+
 </div>
+
+<style>
+/* Dropdown menu width aligned with input */
+.search-dropdown {
+    width: 90%;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.position-relative { position: relative; }
+.dropdown-item { cursor: pointer; }
+</style>
 @endsection
 
 @section('scripts')
 <script>
 $(document).ready(function(){
-    let items = [];
-    let editIndex = null; // track editing row
 
-    function clearErrors(){
-        $('small.text-danger').addClass('d-none').text('');
-        $('input, select').removeClass('is-invalid');
-    }
+    let items = [];
+    let editIndex = null;
+    let selectedItem = null;
 
     function renderItemsTable(){
         let tbody = $('#itemsTable tbody');
@@ -170,64 +170,145 @@ $(document).ready(function(){
         });
     }
 
+    function fetchItems(query, type, callback){
+        $.get("{{ route('requisitions.items.search') }}", { q:query, type:type }, function(res){
+            callback(res.results || []);
+        });
+    }
+
+    function setupDropdown(inputSelector, type){
+        let input = $(inputSelector);
+        let dropdown = input.siblings('.search-dropdown');
+        let activeIndex = -1;
+
+        function showResults(query){
+            fetchItems(query, type, function(results){
+                dropdown.html('');
+                activeIndex = -1;
+                if(results.length){
+                    results.forEach((r,i)=>{
+                        dropdown.append(`
+                            <a class="dropdown-item" 
+                               data-id="${r.id}" 
+                               data-code="${r.item_code}" 
+                               data-desc="${r.description}" 
+                               data-uom="${r.uom}">
+                               ${type==='code'?r.item_code:r.description}
+                            </a>`);
+                    });
+                    dropdown.addClass('show');
+                } else {
+                    dropdown.removeClass('show');
+                }
+            });
+        }
+
+        // focus par bhi dropdown show karo
+        input.on('focus', function(){
+            let query = $(this).val();
+            showResults(query);
+        });
+
+        // typing par bhi search karo
+        input.on('input', function(){
+            let query = $(this).val();
+            showResults(query);
+        });
+
+        // keyboard navigation
+        input.on('keydown', function(e){
+            let items = dropdown.find('.dropdown-item');
+            if(!items.length) return;
+
+            if(e.key === 'ArrowDown'){
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                items.removeClass('active');
+                $(items[activeIndex]).addClass('active');
+            } else if(e.key === 'ArrowUp'){
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                items.removeClass('active');
+                $(items[activeIndex]).addClass('active');
+            } else if(e.key === 'Enter'){
+                e.preventDefault();
+                if(activeIndex>=0){
+                    $(items[activeIndex]).trigger('click');
+                    dropdown.removeClass('show');
+                }
+            }
+        });
+
+        // item select
+        dropdown.on('click','.dropdown-item', function(){
+            selectedItem = {
+                id: $(this).data('id'),
+                item_code: $(this).data('code'),
+                description: $(this).data('desc'),
+                uom: $(this).data('uom')
+            };
+            $('#itemCodeInput').val(selectedItem.item_code);
+            $('#itemDescInput').val(selectedItem.description);
+            $('#itemUom').val(selectedItem.uom);
+            dropdown.removeClass('show');
+        });
+
+        // bahar click par dropdown band
+        $(document).on('click', function(e){
+            if(!$(e.target).closest(inputSelector+', .search-dropdown').length){
+                dropdown.removeClass('show');
+            }
+        });
+    }
+
+    setupDropdown('#itemCodeInput','code');
+    setupDropdown('#itemDescInput','desc');
+
     // Add / Update Item
-    $('#itemForm').on('submit', function(e){
+    $('#itemForm').submit(function(e){
         e.preventDefault();
-        clearErrors();
-        let code = $('#itemCode').val();
-        let desc = $('#itemDesc').val();
-        let uom = $('#itemUom').val();
-        let qty = $('#itemQty').val();
-        let valid = true;
+        let qty = parseFloat($('#itemQty').val());
+        if(!selectedItem){ Swal.fire('Error','Select an item','error'); return; }
+        if(!qty || qty<=0){ Swal.fire('Error','Enter quantity','error'); return; }
 
-        if(!code){ $('#itemCode').addClass('is-invalid'); $('#errorItemCode').removeClass('d-none').text('Item Code required'); valid=false; }
-        if(!desc){ $('#itemDesc').addClass('is-invalid'); $('#errorItemDesc').removeClass('d-none').text('Description required'); valid=false; }
-        if(!uom){ $('#itemUom').addClass('is-invalid'); $('#errorItemUom').removeClass('d-none').text('UOM required'); valid=false; }
-        if(!qty){ $('#itemQty').addClass('is-invalid'); $('#errorItemQty').removeClass('d-none').text('Quantity required'); valid=false; }
+        let newItem = {...selectedItem, quantity: qty};
 
-        if(!valid) return;
-
-        let newItem = {
-            item_code: code,
-            description: desc,
-            uom: uom,
-            quantity: parseInt(qty)
-        };
-
-        if(editIndex !== null){
-            items[editIndex] = newItem; // update
+        if(editIndex!==null){
+            items[editIndex] = newItem;
             editIndex = null;
             $('#addItemBtn').text('Add Item');
         } else {
-            items.push(newItem); // add new
+            if(items.find(i=>i.id===newItem.id)){ Swal.fire('Error','This item already exists','error'); return; }
+            items.push(newItem);
         }
 
         renderItemsTable();
         $('#itemForm')[0].reset();
+        $('#itemUom').val('');
+        selectedItem = null;
     });
 
-    // Edit Item
-    $(document).on('click','.editItemBtn', function(){
+    // Edit / Delete Item
+    $('#itemsTable').on('click','.editItemBtn', function(){
         let index = $(this).data('index');
         let item = items[index];
-        $('#itemCode').val(item.item_code);
-        $('#itemDesc').val(item.description);
-        $('#itemUom').val(item.uom);
         $('#itemQty').val(item.quantity);
-
+        $('#itemCodeInput').val(item.item_code);
+        $('#itemDescInput').val(item.description);
+        $('#itemUom').val(item.uom);
+        selectedItem = item;
         editIndex = index;
         $('#addItemBtn').text('Update Item');
     });
 
-    // Delete Item
-    $(document).on('click','.deleteItemBtn', function(){
+    $('#itemsTable').on('click','.deleteItemBtn', function(){
         let index = $(this).data('index');
         Swal.fire({
-            title: 'Are you sure?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result)=>{
+            title:'Are you sure?',
+            icon:'warning',
+            showCancelButton:true,
+            confirmButtonText:'Yes, delete it!'
+        }).then(result=>{
             if(result.isConfirmed){
                 items.splice(index,1);
                 renderItemsTable();
@@ -236,20 +317,10 @@ $(document).ready(function(){
     });
 
     // Save Requisition
-    $('#saveReqBtn').on('click', function(){
-        clearErrors();
-        let valid = true;
-        if(!$('#reqNo').val()){ $('#reqNo').addClass('is-invalid'); $('#errorReqNo').removeClass('d-none').text('Req No required'); valid=false; }
-        if(!$('#date').val()){ $('#date').addClass('is-invalid'); $('#errorDate').removeClass('d-none').text('Date required'); valid=false; }
-        if(!$('#reqDate').val()){ $('#reqDate').addClass('is-invalid'); $('#errorReqDate').removeClass('d-none').text('Req Date required'); valid=false; }
-        if(!$('#requestedBy').val()){ $('#requestedBy').addClass('is-invalid'); $('#errorRequestedBy').removeClass('d-none').text('Requested By required'); valid=false; }
-        if(!$('#departmentId').val()){ $('#departmentId').addClass('is-invalid'); $('#errorDepartment').removeClass('d-none').text('Department required'); valid=false; }
-        if(!$('#projectName').val()){ $('#projectName').addClass('is-invalid'); $('#errorProject').removeClass('d-none').text('Project Name required'); valid=false; }
-        if(items.length==0){ Swal.fire('Error','Add at least one item','error'); valid=false; }
+    $('#saveReqBtn').click(function(){
+        if(items.length===0){ Swal.fire('Error','Add at least one item','error'); return; }
 
-        if(!valid) return;
-
-        let data = {
+        $.post("{{ route('requisitions.store') }}", {
             _token: '{{ csrf_token() }}',
             req_no: $('#reqNo').val(),
             date: $('#date').val(),
@@ -260,25 +331,19 @@ $(document).ready(function(){
             remarks: $('#remarks').val(),
             delivery_date: $('#deliveryDate').val(),
             items: items
-        };
-
-        $.ajax({
-            url: "{{ route('requisitions.store') }}",
-            type: "POST",
-            data: data,
-            success: function(res){
-                Swal.fire('Success', res.message, 'success');
-                items = [];
-                renderItemsTable();
-                $('#projectForm')[0].reset();
-                $('#itemForm')[0].reset();
-                $('#addItemBtn').text('Add Item');
-            },
-            error: function(err){
-                Swal.fire('Error','Validation failed','error');
-            }
+        }, function(res){
+            Swal.fire('Success',res.message,'success');
+            items=[];
+            renderItemsTable();
+            $('#projectForm')[0].reset();
+            $('#itemForm')[0].reset();
+            $('#itemUom').val('');
+            $('#addItemBtn').text('Add Item');
+        }).fail(function(err){
+            Swal.fire('Error','Validation failed','error');
         });
     });
+
 });
 </script>
 @endsection

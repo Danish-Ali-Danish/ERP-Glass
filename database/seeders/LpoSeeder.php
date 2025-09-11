@@ -12,7 +12,7 @@ class LpoSeeder extends Seeder
     {
         // Test ke liye chhoti count rakho (jaise 100), baad me 100000 kar lena
         Lpo::factory()
-            ->count(100000) 
+            ->count(100) 
             ->create()
             ->each(function ($lpo) {
                 // Har LPO ke liye 2-10 items banayein

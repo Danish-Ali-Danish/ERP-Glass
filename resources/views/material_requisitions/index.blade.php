@@ -2,167 +2,222 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="card-title">Material Requisitions</h4>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reqModal">
-                <i class="fas fa-plus"></i> Add Requisition
-            </button>
-        </div>
-        <div class="card-body">
-            <table id="reqTable" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Sr No.</th>
-                        <th>Req No</th>
-                        <th>Req Date</th>
-                        <th>Department</th>
-                        <th>Project</th>
-                        <th>Requested By</th>
-                        <th>Delivery Date</th>
-                        <th>Remarks</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-</div>
 
-<!-- Modal -->
-<div class="modal fade" id="reqModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <form id="reqForm">
-            @csrf
-            <input type="hidden" id="req_id">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add/Edit Requisition</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body row g-3">
-                    <div class="col-md-6">
-                        <label>Req No</label>
-                        <input type="text" name="req_no" id="req_no" class="form-control" required>
+    <!-- General Info -->
+    <form id="projectForm">
+        @csrf
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header">General Information</div>
+                    <div class="card-body row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Req No</label>
+                            <input type="text" class="form-control" value="REQ-00010002" readonly>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Req Date</label>
+                            <input type="date" class="form-control" name="req_date">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Requested By</label>
+                            <input type="text" class="form-control" name="requested_by">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Department</label>
+                            <select class="form-select" name="department_id">
+                                <option value="">Select Department</option>
+                                @foreach($departments as $dept)
+                                    <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Project Name</label>
+                            <input type="text" class="form-control" name="project_name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Remarks</label>
+                            <input type="text" class="form-control" name="remarks">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Delivery Required Date</label>
+                            <input type="date" class="form-control" name="delivery_date">
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label>Req Date</label>
-                        <input type="date" name="req_date" id="req_date" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Department</label>
-                        <select name="department_id" id="department_id" class="form-control" required>
-                            <option value="">Select Department</option>
-                            @foreach($departments as $dept)
-                                <option value="{{ $dept->id }}">{{ $dept->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Project Name</label>
-                        <input type="text" name="project_name" id="project_name" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Requested By</label>
-                        <input type="text" name="requested_by" id="requested_by" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Delivery Date</label>
-                        <input type="date" name="delivery_date" id="delivery_date" class="form-control">
-                    </div>
-                    <div class="col-md-12">
-                        <label>Remarks</label>
-                        <textarea name="remarks" id="remarks" class="form-control"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success" id="saveBtn">Save</button>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+
+        <!-- Add Items -->
+        <div class="card shadow-sm">
+            <div class="card-header">Add Items</div>
+            <div class="card-body row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Item Code</label>
+                    <input type="text" id="itemCodeInput" class="form-control" placeholder="Search Item Code...">
+                    <div id="itemCodeDropdown" class="dropdown-menu"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Description</label>
+                    <input type="text" id="itemDescInput" class="form-control" placeholder="Search Description...">
+                    <div id="itemDescDropdown" class="dropdown-menu"></div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">UOM</label>
+                    <input type="text" id="itemUom" class="form-control" readonly>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" id="itemQty" class="form-control" value="1" min="1">
+                </div>
+                <div class="col-md-1">
+                    <button type="button" id="addItemBtn" class="btn btn-primary w-100">Add</button>
+                </div>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Item Code</th>
+                            <th>Description</th>
+                            <th>UOM</th>
+                            <th>Quantity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </form>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-$(function(){
-    let table = $('#reqTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('requisitions.index') }}",
-        columns: [
-            { data: 'DT_RowIndex', name: 'DT_RowIndex' },
-            { data: 'req_no', name: 'req_no' },
-            { data: 'req_date', name: 'req_date' },
-            { data: 'department', name: 'department' },
-            { data: 'project_name', name: 'project_name' },
-            { data: 'requested_by', name: 'requested_by' },
-            { data: 'delivery_date', name: 'delivery_date' },
-            { data: 'remarks', name: 'remarks' },
-            { data: 'action', name: 'action', orderable: false, searchable: false }
-        ]
-    });
+$(document).ready(function () {
+    let itemStore = {};
+    let selectedItem = null;
+    let itemsList = [];
 
-    // Save
-    $('#reqForm').on('submit', function(e){
-        e.preventDefault();
-        let id = $('#req_id').val();
-        let url = id ? "/requisitions/"+id : "{{ route('requisitions.store') }}";
-        let type = id ? "PUT" : "POST";
-
+    // Search Items AJAX
+    function searchItems(query, type) {
+        if (query.length < 2) return;
         $.ajax({
-            url: url,
-            type: type,
-            data: $(this).serialize(),
-            success: function(res){
-                $('#reqModal').modal('hide');
-                $('#reqForm')[0].reset();
-                table.ajax.reload();
-                Swal.fire('Success', res.message, 'success');
+            url: "{{ route('items.index') }}",
+            data: { search: query },
+            success: function (res) {
+                let list = "";
+                res.forEach(item => {
+                    itemStore[item.id] = item;
+                    list += `<button class="dropdown-item" type="button"
+                                data-id="${item.id}"
+                                data-code="${item.item_code}"
+                                data-desc="${item.description}"
+                                data-uom="${item.uom}">
+                                ${type === 'code' ? item.item_code : item.description}
+                             </button>`;
+                });
+                if (type === "code") {
+                    $("#itemCodeDropdown").html(list).addClass("show");
+                } else {
+                    $("#itemDescDropdown").html(list).addClass("show");
+                }
             }
         });
+    }
+
+    // Sync both dropdowns + fill fields
+    function handleSelect(el) {
+        let id = el.data("id");
+        let item = itemStore[id];
+        if (!item) return;
+        selectedItem = item;
+
+        $("#itemCodeInput").val(item.item_code);
+        $("#itemDescInput").val(item.description);
+        $("#itemUom").val(item.uom);
+    }
+
+    // Event bindings
+    $("#itemCodeInput").on("input", function () {
+        searchItems($(this).val(), "code");
+    });
+    $("#itemDescInput").on("input", function () {
+        searchItems($(this).val(), "desc");
     });
 
-    // Edit
-    $(document).on('click', '.editBtn', function(){
-        let id = $(this).data('id');
-        $.get("/requisitions/"+id+"/edit", function(data){
-            $('#req_id').val(data.id);
-            $('#req_no').val(data.req_no);
-            $('#req_date').val(data.req_date);
-            $('#department_id').val(data.department_id);
-            $('#project_name').val(data.project_name);
-            $('#requested_by').val(data.requested_by);
-            $('#delivery_date').val(data.delivery_date);
-            $('#remarks').val(data.remarks);
-            $('#reqModal').modal('show');
-        });
+    $("#itemCodeDropdown, #itemDescDropdown").on("click", ".dropdown-item", function () {
+        handleSelect($(this));
+        $(".dropdown-menu").removeClass("show");
+        $("#itemQty").focus();
     });
+
+    // Enter navigation
+    $("#itemCodeInput").on("keydown", function(e){
+        if(e.key === "Enter"){ e.preventDefault(); $("#itemDescInput").focus(); }
+    });
+    $("#itemDescInput").on("keydown", function(e){
+        if(e.key === "Enter"){ e.preventDefault(); $("#itemQty").focus(); }
+    });
+    $("#itemQty").on("keydown", function(e){
+        if(e.key === "Enter"){ e.preventDefault(); $("#addItemBtn").click(); }
+    });
+
+    // Add Item
+    $("#addItemBtn").on("click", function () {
+        if (!selectedItem) return alert("Please select an item");
+        let qty = parseInt($("#itemQty").val());
+        if (isNaN(qty) || qty <= 0) return alert("Enter valid qty");
+
+        let exists = itemsList.find(i => i.id === selectedItem.id);
+        if (exists) {
+            exists.qty += qty;
+        } else {
+            itemsList.push({ ...selectedItem, qty });
+        }
+        renderTable();
+        resetInputs();
+    });
+
+    // Render Table
+    function renderTable() {
+        let rows = "";
+        itemsList.forEach((item, i) => {
+            rows += `<tr>
+                <td>${i+1}</td>
+                <td>${item.item_code}</td>
+                <td>${item.description}</td>
+                <td>${item.uom}</td>
+                <td>${item.qty}</td>
+                <td>
+                    <button class="btn btn-sm btn-danger deleteItem" data-id="${item.id}">Del</button>
+                </td>
+            </tr>`;
+        });
+        $("#itemsTable tbody").html(rows);
+    }
 
     // Delete
-    $(document).on('click', '.deleteBtn', function(){
-        let id = $(this).data('id');
-        Swal.fire({
-            title: "Are you sure?",
-            text: "This will be deleted permanently!",
-            icon: "warning",
-            showCancelButton: true,
-        }).then((result) => {
-            if(result.isConfirmed){
-                $.ajax({
-                    url: "/requisitions/"+id,
-                    type: "DELETE",
-                    data: {_token: "{{ csrf_token() }}"},
-                    success: function(res){
-                        table.ajax.reload();
-                        Swal.fire('Deleted', res.message, 'success');
-                    }
-                });
-            }
-        });
+    $("#itemsTable").on("click", ".deleteItem", function () {
+        let id = $(this).data("id");
+        itemsList = itemsList.filter(i => i.id !== id);
+        renderTable();
     });
+
+    // Reset inputs
+    function resetInputs() {
+        $("#itemCodeInput").val("");
+        $("#itemDescInput").val("");
+        $("#itemUom").val("");
+        $("#itemQty").val(1);
+        selectedItem = null;
+        $("#itemCodeInput").focus();
+    }
 });
 </script>
 @endpush

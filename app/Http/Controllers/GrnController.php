@@ -3,148 +3,139 @@
 namespace App\Http\Controllers;
 
 use App\Models\Grn;
+use App\Models\GrnItem;
+use App\Models\Lpo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables;
 
 class GrnController extends Controller
 {
-    // Show all GRNs (DataTables)
+    // List all GRNs (for DataTable)
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Grn::select(['id','lpo_no','supplier_name','department','project_name']);
-            return DataTables::of($data)
+            $grns = Grn::latest()->withCount('items')->get();
+            return datatables()->of($grns)
                 ->addIndexColumn()
-                ->addColumn('action', function($row){
+                ->addColumn('action', function ($grn) {
                     return '
-                        <a class="text-secondary fs-18 viewBtn" data-id="'.$row->id.'">
+                        <button class="btn btn-sm btn-primary viewBtn" data-id="'.$grn->id.'">
                             <i class="las la-eye"></i>
-                        </a>
-                        <a class="text-secondary fs-18 editBtn" data-id="'.$row->id.'">
-                            <i class="las la-pen"></i>
-                        </a>
-                        <a class="text-secondary fs-18 deleteBtn" data-id="'.$row->id.'">
-                            <i class="las la-trash-alt"></i>
-                        </a>
+                        </button>
+                        <button class="btn btn-sm btn-warning editBtn" data-id="'.$grn->id.'">
+                            <i class="las la-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger deleteBtn" data-id="'.$grn->id.'">
+                            <i class="las la-trash"></i>
+                        </button>
                     ';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
         return view('grns.index');
     }
 
-    // Show create form
+    // Show create GRN page
     public function create()
     {
-        return view('grns.create');
+        $lpos = Lpo::where('grn_generated', 0)->limit(20)->get();
+        return view('grns.create', compact('lpos'));
     }
 
-    // Store new GRN
+    // Fetch LPO details for GRN creation
+    public function getLpoDetails($id)
+    {
+        $lpo = Lpo::with('items')->findOrFail($id);
+
+        $mappedItems = $lpo->items->map(function ($item) {
+            return [
+                'description' => $item->description,
+                'uom' => $item->uom,
+                'quantity' => $item->quantity ?? 0
+            ];
+        });
+
+        return response()->json([
+            'lpo_no' => $lpo->lpo_no,
+            'supplier_name' => $lpo->supplier_name,
+            'date' => $lpo->date,
+            'supplier_code' => $lpo->supplier_code,
+            'requested_by' => $lpo->requested_by,
+            'department' => $lpo->department,
+            'project_name' => $lpo->project_name,
+            'inv_no' => $lpo->inv_no,
+            'inv_date' => $lpo->inv_date,
+            'items' => $mappedItems
+        ]);
+    }
+
+    // Store GRN with items
     public function store(Request $request)
     {
         $request->validate([
-            'lpo_no' => 'required|string|max:255',
-            'supplier_name' => 'required|string|max:255',
+            'lpo_id' => 'required|exists:lpos,id',
             'items' => 'required|array|min:1',
             'items.*.description' => 'required|string',
-            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.uom' => 'required|string',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'supplier_name'=>'required|string',
+            'date'=>'required|date',
+            'supplier_code'=>'nullable|string',
+            'requested_by'=>'nullable|string',
+            'inv_no'=>'nullable|string',
+            'department'=>'nullable|string',
+            'inv_date'=>'nullable|date',
+            'project_name'=>'nullable|string'
         ]);
 
-        DB::beginTransaction();
-        try {
-            $grn = Grn::create([
-                'lpo_no' => $request->lpo_no,
-                'supplier_name' => $request->supplier_name,
-                'lpo_date' => $request->lpo_date,
-                'supplier_code' => $request->supplier_code,
-                'requested_by' => $request->requested_by,
-                'inv_no' => $request->inv_no,
-                'department' => $request->department,
-                'inv_date' => $request->inv_date,
-                'project_name' => $request->project_name,
-            ]);
+        DB::transaction(function() use ($request) {
+            $lpo = Lpo::findOrFail($request->lpo_id);
+            if ($lpo->grn_generated) {
+                abort(400, "This LPO already has a GRN.");
+            }
+
+            $grn = Grn::create($request->only([
+                'lpo_id','lpo_no','supplier_name','date','supplier_code',
+                'requested_by','inv_no','department','inv_date','project_name'
+            ]));
 
             foreach ($request->items as $item) {
                 $grn->items()->create([
-                    'item_code' => $item['code'] ?? null,
                     'description' => $item['description'],
                     'uom' => $item['uom'],
-                    'quantity' => $item['quantity'],
+                    'quantity' => $item['quantity']
                 ]);
             }
 
-            DB::commit();
-            return response()->json(['message' => 'GRN created successfully']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Error: '.$e->getMessage()], 500);
-        }
+            $lpo->grn_generated = 1;
+            $lpo->save();
+        });
+
+        return response()->json(['message' => 'GRN created successfully']);
     }
 
-    // Show single GRN (for preview modal)
-    public function show(Grn $grn)
+    // Show GRN details (for preview modal)
+    public function show($id)
     {
-        $grn->load('items');
+        $grn = Grn::with('items')->findOrFail($id);
         return response()->json($grn);
     }
 
-    // Show edit form
-    public function edit(Grn $grn)
-    {
-        $grn->load('items');
-        return view('grns.edit', compact('grn'));
-    }
-
-    // Update GRN
-    public function update(Request $request, Grn $grn)
-    {
-        $request->validate([
-            'lpo_no' => 'required|string|max:255',
-            'supplier_name' => 'required|string|max:255',
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string',
-            'items.*.quantity' => 'required|integer|min:1',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $grn->update([
-                'lpo_no' => $request->lpo_no,
-                'supplier_name' => $request->supplier_name,
-                'lpo_date' => $request->lpo_date,
-                'supplier_code' => $request->supplier_code,
-                'requested_by' => $request->requested_by,
-                'inv_no' => $request->inv_no,
-                'department' => $request->department,
-                'inv_date' => $request->inv_date,
-                'project_name' => $request->project_name,
-            ]);
-
-            // Purane items delete karke naye insert karna
-            $grn->items()->delete();
-            foreach ($request->items as $item) {
-                $grn->items()->create([
-                    'item_code' => $item['code'] ?? null,
-                    'description' => $item['description'],
-                    'uom' => $item['uom'],
-                    'quantity' => $item['quantity'],
-                ]);
-            }
-
-            DB::commit();
-            return response()->json(['message' => 'GRN updated successfully']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Error: '.$e->getMessage()], 500);
-        }
-    }
-
     // Delete GRN
-    public function destroy(Grn $grn)
+    public function destroy($id)
     {
-        $grn->delete();
+        $grn = Grn::findOrFail($id);
+        DB::transaction(function() use ($grn) {
+            $lpo = $grn->lpo;
+            $grn->delete();
+            if ($lpo) {
+                $lpo->grn_generated = 0;
+                $lpo->save();
+            }
+        });
+
         return response()->json(['message' => 'GRN deleted successfully']);
     }
 }

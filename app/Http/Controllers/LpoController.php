@@ -13,7 +13,7 @@ class LpoController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Lpo::select(['id','supplier_name','contact_person','pi_no','supplier_trn']);
+            $data = Lpo::select(['id','supplier_name','contact_person','pi_no','supplier_trn','lpo_no']);
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
@@ -38,7 +38,12 @@ class LpoController extends Controller
     // Show create form
     public function create()
     {
-        return view('lpos.create');
+        // Generate next LPO No for display
+        $lastLpo = Lpo::latest('id')->first();
+        $nextNumber = $lastLpo ? $lastLpo->id + 1 : 1;
+        $lpoNo = 'LPO-' . str_pad($nextNumber, 8, '0', STR_PAD_LEFT);
+
+        return view('lpos.create', compact('lpoNo'));
     }
 
     // Store new LPO
@@ -47,17 +52,21 @@ class LpoController extends Controller
         $request->validate([
             'supplier_name' => 'required|string',
             'date' => 'required|date',
-            'lpo_no' => 'required|string|unique:lpos,lpo_no',
             'items' => 'required|array|min:1',
         ]);
 
         DB::beginTransaction();
         try {
+            // Auto-generate again to avoid duplication
+            $lastLpo = Lpo::latest('id')->first();
+            $nextNumber = $lastLpo ? $lastLpo->id + 1 : 1;
+            $lpoNo = 'LPO-' . str_pad($nextNumber, 8, '0', STR_PAD_LEFT);
+
             $lpo = Lpo::create([
                 'supplier_name' => $request->supplier_name,
                 'date' => $request->date,
                 'contact_person' => $request->contact_person,
-                'lpo_no' => $request->lpo_no,
+                'lpo_no' => $lpoNo,
                 'contact_no' => $request->contact_no,
                 'pi_no' => $request->pi_no,
                 'supplier_trn' => $request->supplier_trn,
@@ -106,7 +115,6 @@ class LpoController extends Controller
         $request->validate([
             'supplier_name' => 'required|string',
             'date' => 'required|date',
-            'lpo_no' => 'required|string|unique:lpos,lpo_no,'.$lpo->id,
             'items' => 'required|array|min:1',
         ]);
 
@@ -116,7 +124,6 @@ class LpoController extends Controller
                 'supplier_name' => $request->supplier_name,
                 'date' => $request->date,
                 'contact_person' => $request->contact_person,
-                'lpo_no' => $request->lpo_no,
                 'contact_no' => $request->contact_no,
                 'pi_no' => $request->pi_no,
                 'supplier_trn' => $request->supplier_trn,

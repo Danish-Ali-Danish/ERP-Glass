@@ -7,7 +7,7 @@
                 <h4 class="page-title">Material Requisitions</h4>
                 <div class="">
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Expert Power Glass Ind</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
                        
                         <li class="breadcrumb-item active">All Requisitions</li>
                     </ol>

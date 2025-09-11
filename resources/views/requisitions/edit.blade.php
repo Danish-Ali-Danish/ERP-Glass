@@ -7,8 +7,8 @@
                 <h4 class="page-title">Edit Requisitions</h4>
                 <div class="">
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Expert Power Glass Ind</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('requisitions.index')}}">Expert Power Glass Ind</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('requisitions.index')}}">All Requisition</a></li>
                         <li class="breadcrumb-item active">Edit Requisitions</li>
                     </ol>
                 </div>                                
@@ -68,31 +68,39 @@
     </form>
 
     <!-- Item Form -->
-    <form id="itemForm">
+    <form id="itemForm" class="mb-3">
         <div class="row g-3">
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-header">Add Items</div>
                     <div class="card-body row g-3">
-                        <div class="col-md-2">
+
+                        <div class="col-md-3 position-relative">
                             <label>Item Code</label>
-                            <input type="number" class="form-control" id="itemCode">
+                            <input type="text" class="form-control" id="itemCodeInput" placeholder="Search Item Code...">
+                            <div class="dropdown-menu search-dropdown"></div>
                         </div>
-                        <div class="col-md-4">
+
+                        <div class="col-md-4 position-relative">
                             <label>Description</label>
-                            <input type="text" class="form-control" id="itemDesc">
+                            <input type="text" class="form-control" id="itemDescInput" placeholder="Search Description...">
+                            <div class="dropdown-menu search-dropdown"></div>
                         </div>
+
                         <div class="col-md-2">
                             <label>UOM</label>
-                            <input type="text" class="form-control" id="itemUom">
+                            <input type="text" class="form-control" id="itemUom" readonly>
                         </div>
+
                         <div class="col-md-2">
                             <label>Quantity</label>
                             <input type="number" class="form-control" id="itemQty">
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
+
+                        <div class="col-md-1 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary w-100" id="addItemBtn">Add / Update Item</button>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -125,14 +133,26 @@
 
     <button class="btn btn-success mt-3" id="saveReqBtn">Update Requisition</button>
 </div>
+
+<style>
+.search-dropdown {
+    width: 90%;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.position-relative { position: relative; }
+.dropdown-item { cursor: pointer; }
+</style>
 @endsection
 
 @section('scripts')
 <script>
-    $(document).ready(function(){
+$(document).ready(function(){
+
     let items = @json($requisition->items);
     let editIndex = null;
     let formChanged = false;
+    let selectedItem = null;
 
     function renderItemsTable(){
         let tbody = $('#itemsTable tbody');
@@ -155,88 +175,155 @@
     }
     renderItemsTable();
 
-    // Detect form changes
-    $('#projectForm input, #projectForm select, #itemForm input').on('change input', function(){
-        formChanged = true;
-    });
+    // --- Fetch items via AJAX ---
+    function fetchItems(query, type, callback){
+        $.get("{{ route('requisitions.items.search') }}", { q:query, type:type }, function(res){
+            callback(res.results || []);
+        });
+    }
 
-    // Add / Update Item
-    $('#itemForm').on('submit', function(e){
-        e.preventDefault();
-        let newItem = {
-            item_code: $('#itemCode').val(),
-            description: $('#itemDesc').val(),
-            uom: $('#itemUom').val(),
-            quantity: parseInt($('#itemQty').val())
-        };
+    // --- Setup dropdown for search (focus + input both) ---
+    function setupDropdown(inputSelector, type){
+        let input = $(inputSelector);
+        let dropdown = input.siblings('.search-dropdown');
+        let activeIndex = -1;
 
-        if(editIndex !== null){
-            items[editIndex] = newItem;
-            editIndex = null;
-        } else {
-            items.push(newItem);
-        }
-
-        formChanged = true;
-        $('#itemForm')[0].reset();
-        renderItemsTable();
-    });
-
-    // Edit Item
-    $(document).on('click', '.editItemBtn', function(){
-        editIndex = $(this).data('index');
-        let item = items[editIndex];
-        $('#itemCode').val(item.item_code);
-        $('#itemDesc').val(item.description);
-        $('#itemUom').val(item.uom);
-        $('#itemQty').val(item.quantity);
-    });
-
-    // Delete Item
-    $(document).on('click','.deleteItemBtn', function(){
-        let index = $(this).data('index');
-        items.splice(index,1);
-        formChanged = true;
-        renderItemsTable();
-    });
-
-    // 🚨 Intercept page leave (links, refresh, close)
-    window.addEventListener("beforeunload", function (e) {
-        if (formChanged) {
-            e.preventDefault();
-            e.returnValue = ''; // Standard browser message
-        }
-    });
-
-    // 🚨 Intercept internal navigation clicks
-    $(document).on('click', 'a', function(e){
-        if(formChanged && !$(this).is('#saveReqBtn')) {
-            e.preventDefault();
-            let targetUrl = $(this).attr('href');
-
-            Swal.fire({
-                title: 'You have unsaved changes!',
-                text: 'Do you want to update before leaving?',
-                icon: 'warning',
-                showCancelButton: true,
-                showDenyButton: true,
-                confirmButtonText: ' Update',
-                denyButtonText: ' Leave Without Saving',
-                cancelButtonText: ' Cancel'
-            }).then((result)=>{
-                if(result.isConfirmed){
-                    $('#saveReqBtn').trigger('click'); // save before leaving
-                } else if(result.isDenied){
-                    formChanged = false; // bypass warning
-                    window.location.href = targetUrl;
+        function showResults(query){
+            fetchItems(query, type, function(results){
+                dropdown.html('');
+                activeIndex = -1;
+                if(results.length){
+                    results.forEach((r,i)=>{
+                        dropdown.append(`
+                            <a class="dropdown-item"
+                               data-id="${r.id}"
+                               data-code="${r.item_code}"
+                               data-desc="${r.description}"
+                               data-uom="${r.uom}">
+                               ${type==='code'?r.item_code:r.description}
+                            </a>`);
+                    });
+                    dropdown.addClass('show');
+                } else {
+                    dropdown.removeClass('show');
                 }
             });
         }
+
+        input.on('focus', function(){
+            let query = $(this).val();
+            showResults(query);
+        });
+
+        input.on('input', function(){
+            let query = $(this).val();
+            showResults(query);
+        });
+
+        input.on('keydown', function(e){
+            let items = dropdown.find('.dropdown-item');
+            if(!items.length) return;
+
+            if(e.key === 'ArrowDown'){
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                items.removeClass('active');
+                $(items[activeIndex]).addClass('active');
+            } else if(e.key === 'ArrowUp'){
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                items.removeClass('active');
+                $(items[activeIndex]).addClass('active');
+            } else if(e.key === 'Enter'){
+                e.preventDefault();
+                if(activeIndex>=0){
+                    $(items[activeIndex]).trigger('click');
+                    dropdown.removeClass('show');
+                }
+            }
+        });
+
+        dropdown.on('click','.dropdown-item', function(){
+            selectedItem = {
+                id: $(this).data('id'),
+                item_code: $(this).data('code'),
+                description: $(this).data('desc'),
+                uom: $(this).data('uom')
+            };
+            $('#itemCodeInput').val(selectedItem.item_code);
+            $('#itemDescInput').val(selectedItem.description);
+            $('#itemUom').val(selectedItem.uom);
+            dropdown.removeClass('show');
+        });
+
+        $(document).on('click', function(e){
+            if(!$(e.target).closest(inputSelector+', .search-dropdown').length){
+                dropdown.removeClass('show');
+            }
+        });
+    }
+
+    setupDropdown('#itemCodeInput','code');
+    setupDropdown('#itemDescInput','desc');
+
+    // Add / Update Item
+    $('#itemForm').submit(function(e){
+        e.preventDefault();
+        let qty = parseFloat($('#itemQty').val());
+        if(!selectedItem){ Swal.fire('Error','Select an item','error'); return; }
+        if(!qty || qty<=0){ Swal.fire('Error','Enter quantity','error'); return; }
+
+        let newItem = {...selectedItem, quantity: qty};
+
+        if(editIndex!==null){
+            items[editIndex] = newItem;
+            editIndex = null;
+            $('#addItemBtn').text('Add / Update Item');
+        } else {
+            if(items.find(i=>i.id===newItem.id)){ Swal.fire('Error','This item already exists','error'); return; }
+            items.push(newItem);
+        }
+
+        renderItemsTable();
+        $('#itemForm')[0].reset();
+        $('#itemUom').val('');
+        selectedItem = null;
+        formChanged = true;
     });
 
-    // Update Requisition
-    $('#saveReqBtn').on('click', function(e){
+    // Edit / Delete Item
+    $('#itemsTable').on('click','.editItemBtn', function(){
+        let index = $(this).data('index');
+        let item = items[index];
+        $('#itemQty').val(item.quantity);
+        $('#itemCodeInput').val(item.item_code);
+        $('#itemDescInput').val(item.description);
+        $('#itemUom').val(item.uom);
+        selectedItem = item;
+        editIndex = index;
+        $('#addItemBtn').text('Update Item');
+    });
+
+    $('#itemsTable').on('click','.deleteItemBtn', function(){
+        let index = $(this).data('index');
+        Swal.fire({
+            title:'Are you sure?',
+            icon:'warning',
+            showCancelButton:true,
+            confirmButtonText:'Yes, delete it!'
+        }).then(result=>{
+            if(result.isConfirmed){
+                items.splice(index,1);
+                renderItemsTable();
+                formChanged = true;
+            }
+        });
+    });
+
+    // Save Requisition (Update)
+    $('#saveReqBtn').click(function(e){
         e.preventDefault();
+        if(items.length===0){ Swal.fire('Error','Add at least one item','error'); return; }
 
         let data = {
             _token: '{{ csrf_token() }}',
@@ -278,6 +365,7 @@
             }
         });
     });
+
 });
 </script>
 @endsection

@@ -12,6 +12,7 @@
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="assets/images/favicon.ico">
+        <link href="{{ asset('assets/libs/mobius1-selectr/selectr.min.css')}}" rel="stylesheet" type="text/css" />
 
     <!-- App CSS -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
@@ -46,6 +47,7 @@
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('assets/libs/mobius1-selectr/selectr.min.js') }}"></script>
 
     <!-- Bootstrap Bundle -->
     <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
