@@ -7,4 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Item extends Model
 {
     protected $fillable = ['item_code','description','uom','remarks'];
+
+        public function grn(){
+        return $this->belongsTo(Grn::class);
+    }
+
 }
+

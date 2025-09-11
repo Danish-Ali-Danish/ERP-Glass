@@ -18,4 +18,12 @@ class Lpo extends Model
     public function items(){
         return $this->hasMany(LpoItem::class);
     }
+     
+
+    // App/Models/Lpo.php
+public function grns()
+{
+    return $this->hasMany(Grn::class);
+}
+
 }

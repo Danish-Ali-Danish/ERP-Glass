@@ -9,13 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up()
-{
-    Schema::create('grns', function (Blueprint $table) {
+    public function up()
+    {Schema::create('grns', function (Blueprint $table) {
         $table->id();
-        $table->string('lpo_no');
-        $table->string('supplier_name');
-        $table->date('lpo_date')->nullable();
+        $table->unsignedBigInteger('lpo_id')->nullable();
+        $table->string('lpo_no')->nullable();
+        $table->string('supplier_name')->nullable();
+        $table->date('date')->nullable();
         $table->string('supplier_code')->nullable();
         $table->string('requested_by')->nullable();
         $table->string('inv_no')->nullable();
@@ -23,8 +23,7 @@ public function up()
         $table->date('inv_date')->nullable();
         $table->string('project_name')->nullable();
         $table->timestamps();
-    });
-}
+    });}
 
     /**
      * Reverse the migrations.

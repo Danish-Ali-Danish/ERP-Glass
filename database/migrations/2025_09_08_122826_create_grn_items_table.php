@@ -11,15 +11,17 @@ return new class extends Migration
      */
 public function up()
 {
-    Schema::create('grn_items', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('grn_id')->constrained()->onDelete('cascade');
-        $table->string('item_code')->nullable();
-        $table->string('description');
-        $table->string('uom')->nullable();
-        $table->integer('quantity');
-        $table->timestamps();
-    });
+   Schema::create('grn_items', function(Blueprint $table){
+    $table->id();
+    $table->unsignedBigInteger('grn_id');
+    $table->string('description')->nullable();
+    $table->string('uom')->nullable();
+    $table->decimal('quantity',12,2)->default(0);
+    $table->timestamps();
+
+    $table->foreign('grn_id')->references('id')->on('grns')->onDelete('cascade');
+});
+
 }
 
     /**

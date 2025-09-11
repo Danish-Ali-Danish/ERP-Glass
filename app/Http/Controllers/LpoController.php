@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lpo;
+use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class LpoController extends Controller
@@ -38,7 +40,6 @@ class LpoController extends Controller
     // Show create form
     public function create()
     {
-        // Generate next LPO No for display
         $lastLpo = Lpo::latest('id')->first();
         $nextNumber = $lastLpo ? $lastLpo->id + 1 : 1;
         $lpoNo = 'LPO-' . str_pad($nextNumber, 8, '0', STR_PAD_LEFT);
@@ -49,15 +50,31 @@ class LpoController extends Controller
     // Store new LPO
     public function store(Request $request)
     {
-        $request->validate([
-            'supplier_name' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'supplier_name' => 'required|string|max:255',
             'date' => 'required|date',
+            'contact_person' => 'nullable|string|max:255',
+            'contact_no' => 'nullable|string|max:50',
+            'pi_no' => 'nullable|string|max:50',
+            'supplier_trn' => 'nullable|string|max:50',
+            'address' => 'required|string',
             'items' => 'required|array|min:1',
+            'items.*.description' => 'required|string|max:255',
+            'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.unit_price' => 'required|numeric|min:0.01',
+            'items.*.uom' => 'required|string|max:50',
+            'items.*.area' => 'nullable|numeric|min:0',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
         DB::beginTransaction();
         try {
-            // Auto-generate again to avoid duplication
             $lastLpo = Lpo::latest('id')->first();
             $nextNumber = $lastLpo ? $lastLpo->id + 1 : 1;
             $lpoNo = 'LPO-' . str_pad($nextNumber, 8, '0', STR_PAD_LEFT);
@@ -88,14 +105,14 @@ class LpoController extends Controller
             }
 
             DB::commit();
-            return response()->json(['message' => 'LPO created successfully']);
+            return response()->json(['status'=>'success','message' => 'LPO created successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Error: '.$e->getMessage()], 500);
+            return response()->json(['status'=>'error','message' => 'Error: '.$e->getMessage()], 500);
         }
     }
 
-    // Show single LPO (for preview modal)
+    // Show single LPO
     public function show(Lpo $lpo)
     {
         $lpo->load('items');
@@ -112,11 +129,28 @@ class LpoController extends Controller
     // Update LPO
     public function update(Request $request, Lpo $lpo)
     {
-        $request->validate([
-            'supplier_name' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'supplier_name' => 'required|string|max:255',
             'date' => 'required|date',
+            'contact_person' => 'nullable|string|max:255',
+            'contact_no' => 'nullable|string|max:50',
+            'pi_no' => 'nullable|string|max:50',
+            'supplier_trn' => 'nullable|string|max:50',
+            'address' => 'required|string',
             'items' => 'required|array|min:1',
+            'items.*.description' => 'required|string|max:255',
+            'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.unit_price' => 'required|numeric|min:0.01',
+            'items.*.uom' => 'required|string|max:50',
+            'items.*.area' => 'nullable|numeric|min:0',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
         DB::beginTransaction();
         try {
@@ -133,7 +167,6 @@ class LpoController extends Controller
                 'net_total' => $request->net_total,
             ]);
 
-            // Purane items delete karke naye insert karna
             $lpo->items()->delete();
             foreach ($request->items as $item) {
                 $lpo->items()->create([
@@ -147,17 +180,41 @@ class LpoController extends Controller
             }
 
             DB::commit();
-            return response()->json(['message' => 'LPO updated successfully']);
+            return response()->json(['status'=>'success','message' => 'LPO updated successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Error: '.$e->getMessage()], 500);
+            return response()->json(['status'=>'error','message' => 'Error: '.$e->getMessage()], 500);
         }
     }
 
     // Delete LPO
     public function destroy(Lpo $lpo)
     {
-        $lpo->delete();
-        return response()->json(['message' => 'LPO deleted successfully']);
+        try {
+            $lpo->delete();
+            return response()->json(['status'=>'success','message' => 'LPO deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['status'=>'error','message' => 'Error: '.$e->getMessage()], 500);
+        }
+    }
+
+    // 🔎 Search Items for LPO (Live Suggestions)
+    public function searchItems(Request $request)
+    {
+        $q = $request->get('q');
+
+        $query = Item::query();
+
+        if(!$q || $q === '*'){
+            $query->limit(20);
+        } else {
+            $query->where('description','like',"%$q%")->limit(20);
+        }
+
+        $items = $query->select('id','description','uom')->get();
+
+        return response()->json([
+            'results' => $items
+        ]);
     }
 }

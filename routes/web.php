@@ -39,5 +39,13 @@ Route::delete('/requisitions/{id}', [RequisitionController::class, 'destroy'])->
 Route::get('requisitions/items/search', [RequisitionController::class,'searchItems'])->name('requisitions.items.search');
 
 Route::resource('lpos', LpoController::class);
-Route::resource('grns', GrnController::class);
 Route::resource('items', ItemController::class);
+Route::get('/lpos/search-items', [LpoController::class, 'searchItems'])->name('lpos.items.search');
+
+
+Route::prefix('grns')->group(function(){
+    Route::get('/', [GrnController::class,'index'])->name('grns.index');
+    Route::get('/create', [GrnController::class,'create'])->name('grns.create');
+    Route::post('/store', [GrnController::class,'store'])->name('grns.store');
+    Route::get('/lpo-details/{id}', [GrnController::class,'getLpoDetails']);
+});

@@ -156,6 +156,7 @@
 $(document).ready(function(){
     let items = @json($lpo->items);
     let editIndex = null;
+    let selectedItem = null; // dropdown selected item
     let formChanged = false;
 
     function renderItemsTable(){
@@ -189,13 +190,70 @@ $(document).ready(function(){
     }
     renderItemsTable();
 
+    // --- Dropdown Setup for Item Description ---
+    function setupDropdown(inputSelector){
+        let input = $(inputSelector);
+        input.wrap('<div class="position-relative"></div>');
+        let dropdown = $('<div class="dropdown-menu search-dropdown"></div>');
+        input.after(dropdown);
+
+        let activeIndex = -1;
+
+        function showResults(query){
+            if(!query) query='*';
+            $.get("{{ route('lpos.items.search') }}",{q:query}, function(res){
+                dropdown.html(''); activeIndex=-1; selectedItem=null;
+                if(res.results.length){
+                    res.results.forEach(r=>{
+                        dropdown.append(`<a class="dropdown-item" data-id="${r.id}" data-desc="${r.description}" data-uom="${r.uom}">${r.description}</a>`);
+                    });
+                    dropdown.addClass('show');
+                } else dropdown.removeClass('show');
+            });
+        }
+
+        input.on('input focus', ()=>showResults(input.val()));
+
+        input.on('keydown', function(e){
+            let itemsList = dropdown.find('.dropdown-item');
+            if(!itemsList.length) return;
+
+            if(e.key==='ArrowDown'){ e.preventDefault(); activeIndex=(activeIndex+1)%itemsList.length; itemsList.removeClass('active'); $(itemsList[activeIndex]).addClass('active'); }
+            else if(e.key==='ArrowUp'){ e.preventDefault(); activeIndex=(activeIndex-1+itemsList.length)%itemsList.length; itemsList.removeClass('active'); $(itemsList[activeIndex]).addClass('active'); }
+            else if(e.key==='Enter'){ 
+                e.preventDefault(); 
+                if(activeIndex>=0){ $(itemsList[activeIndex]).trigger('click'); dropdown.removeClass('show'); } 
+            }
+        });
+
+        dropdown.on('click','.dropdown-item', function(){
+            selectedItem={id:$(this).data('id'), description:$(this).data('desc'), uom:$(this).data('uom')};
+            $('#itemDesc').val(selectedItem.description);
+            $('#itemUom').val(selectedItem.uom);
+            dropdown.removeClass('show');
+        });
+
+        $(document).on('click', function(e){
+            if(!$(e.target).closest(inputSelector+', .search-dropdown').length) dropdown.removeClass('show');
+        });
+    }
+
+    setupDropdown('#itemDesc');
+
+    // --- Add / Update Item ---
     $('#itemForm').on('submit', function(e){
         e.preventDefault();
+        if(!selectedItem){
+            Swal.fire('Error','Please select a valid item','error');
+            return;
+        }
+
         let newItem = {
-            description: $('#itemDesc').val(),
-            area: $('#itemArea').val(),
+            id: selectedItem.id,
+            description: selectedItem.description,
+            area: parseFloat($('#itemArea').val()) || 0,
             quantity: parseInt($('#itemQty').val()),
-            uom: $('#itemUom').val(),
+            uom: selectedItem.uom,
             unit_price: parseFloat($('#itemUnitPrice').val())
         };
 
@@ -203,10 +261,16 @@ $(document).ready(function(){
             items[editIndex] = newItem;
             editIndex = null;
         } else {
+            if(items.find(i=>i.id===newItem.id)){
+                Swal.fire('Error','This item already exists','error');
+                return;
+            }
             items.push(newItem);
         }
 
         $('#itemForm')[0].reset();
+        $('#itemUom').val('');
+        selectedItem=null;
         formChanged = true;
         renderItemsTable();
     });
@@ -219,6 +283,7 @@ $(document).ready(function(){
         $('#itemQty').val(item.quantity);
         $('#itemUom').val(item.uom);
         $('#itemUnitPrice').val(item.unit_price);
+        selectedItem=item;
     });
 
     $(document).on('click','.deleteItemBtn', function(){
@@ -228,9 +293,14 @@ $(document).ready(function(){
         renderItemsTable();
     });
 
-    // Update LPO
+    // --- Update LPO ---
     $('#saveLpoBtn').on('click', function(e){
         e.preventDefault();
+        if(items.length===0){
+            Swal.fire('Error','Add at least one item','error');
+            return;
+        }
+
         let data = {
             _token: '{{ csrf_token() }}',
             supplier_name: $('#supplierName').val(),
@@ -243,10 +313,11 @@ $(document).ready(function(){
             address: $('#address').val(),
             sub_total: $('#subTotal').text(),
             vat: $('#vat').text(),
-            net_total: $('#netTotal').text(),
+            net_total: $('#netTotal').text()
         };
 
-        items.forEach((item, index)=>{
+        items.forEach((item,index)=>{
+            data[`items[${index}][id]`] = item.id;
             data[`items[${index}][description]`] = item.description;
             data[`items[${index}][area]`] = item.area;
             data[`items[${index}][quantity]`] = item.quantity;
@@ -261,9 +332,7 @@ $(document).ready(function(){
             data: data,
             success: function(res){
                 formChanged = false;
-                Swal.fire('Updated!', 'LPO updated successfully.', 'success').then(()=>{
-                    window.location.href = "{{ route('lpos.index') }}";
-                });
+                Swal.fire('Updated!','LPO updated successfully.','success').then(()=>{ window.location.href="{{ route('lpos.index') }}"; });
             },
             error: function(xhr){
                 Swal.fire('Error','Something went wrong','error');
@@ -271,5 +340,6 @@ $(document).ready(function(){
         });
     });
 });
+
 </script>
 @endsection

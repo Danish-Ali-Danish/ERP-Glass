@@ -16,7 +16,7 @@ class ItemSeeder extends Seeder
     {
         $records = [];
 
-        for ($i = 1; $i <= 100000; $i++) {
+        for ($i = 1; $i <= 100; $i++) {
             $records[] = [
                 'item_code'   => 'ITM-' . str_pad($i, 5, '0', STR_PAD_LEFT),
                 'description' => 'Sample Item ' . $i,

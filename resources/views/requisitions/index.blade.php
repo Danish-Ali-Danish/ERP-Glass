@@ -8,7 +8,6 @@
                 <div class="">
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                       
                         <li class="breadcrumb-item active">All Requisitions</li>
                     </ol>
                 </div>                                
@@ -28,9 +27,11 @@
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
+                        <th>Req No</th>
+                        <th>Department</th>
                         <th>Project Name</th>
                         <th>Requested By</th>
-                        <th>Department</th>
+                        <th>Remarks</th>
                         <th class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -115,9 +116,11 @@ $(function(){
         order:[[0,'desc']],
         columns:[
             {data:'DT_RowIndex', orderable:false, searchable:false, className:'text-center'}, 
+            {data:'req_no', name:'req_no'},
+            {data:'department', name:'department'},
             {data:'project_name', name:'project_name'},
             {data:'requested_by', name:'requested_by'},
-            {data:'department', name:'department'},
+            {data:'remarks', name:'remarks'},
             {data:'action', orderable:false, searchable:false, className:'text-center'}, 
         ]
     });
@@ -190,8 +193,8 @@ $(function(){
                         body { -webkit-print-color-adjust: exact; background: #fff !important; }
                         .print-footer { position: fixed; bottom: 0; }
                         table { border-collapse: collapse !important; width: 100%; }
-                        table, th, td { border: 1px solid #ccc !important; } /* light gray borders */
-                        thead th { background: #f2f2f2 !important; }       /* light gray headings */
+                        table, th, td { border: 1px solid #ccc !important; }
+                        thead th { background: #f2f2f2 !important; }
                     }
                     body { font-size: 13px; font-family: "Times New Roman", serif; background: #fff !important; }
                     .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; font-size: 13px; }

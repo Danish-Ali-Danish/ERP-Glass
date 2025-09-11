@@ -96,6 +96,28 @@
                                     </ul>
                                 </div>
                             </li>
+                            <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('grns.*') ? '' : 'collapsed' }}" 
+                            href="#sidebarGrns" data-bs-toggle="collapse" role="button"
+                            aria-expanded="{{ request()->routeIs('grns.*') ? 'true' : 'false' }}" 
+                            aria-controls="sidebarGrns">
+                                <i class="iconoir-box-archive menu-icon"></i>
+                                <span>GRNs</span>
+                            </a>
+                            <div class="collapse {{ request()->routeIs('grns.*') ? 'show' : '' }}" id="sidebarGrns">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('grns.create') ? 'active' : '' }}" 
+                                        href="{{ route('grns.create') }}">Add New</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('grns.index') ? 'active' : '' }}" 
+                                        href="{{ route('grns.index') }}">All GRNs</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
 
 
 
