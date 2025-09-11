@@ -10,6 +10,7 @@ use App\Http\Controllers\RequisitionController;
 use App\Http\Controllers\LpoController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\GrnController;
+use App\Http\Controllers\SifController;
 
 
 Route::get('/', function () {
@@ -44,8 +45,16 @@ Route::get('/lpos/search-items', [LpoController::class, 'searchItems'])->name('l
 
 
 Route::prefix('grns')->group(function(){
-    Route::get('/', [GrnController::class,'index'])->name('grns.index');
-    Route::get('/create', [GrnController::class,'create'])->name('grns.create');
-    Route::post('/store', [GrnController::class,'store'])->name('grns.store');
     Route::get('/lpo-details/{id}', [GrnController::class,'getLpoDetails']);
 });
+Route::delete('/grns/{grn}', [GrnController::class, 'destroy'])->name('grns.destroy');
+Route::resource('grns', GrnController::class);
+Route::prefix('sifs')->group(function () {
+    Route::get('/', [SifController::class, 'index'])->name('sifs.index');
+    Route::get('/create', [SifController::class, 'create'])->name('sifs.create');
+    Route::post('/', [SifController::class, 'store'])->name('sifs.store');
+    Route::get('/{sif}', [SifController::class, 'show'])->name('sifs.show');
+    Route::delete('/{sif}', [SifController::class, 'destroy'])->name('sifs.destroy');
+});
+Route::get('/items/get-code', [ItemController::class, 'getCode'])->name('items.get-code');
+Route::get('/sifs/items/search', [SifController::class, 'searchItems'])->name('sifs.items.search');

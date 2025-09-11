@@ -101,7 +101,7 @@
                                 href="#sidebarGRNs" data-bs-toggle="collapse" role="button"
                                 aria-expanded="{{ request()->routeIs('grns.*') ? 'true' : 'false' }}" 
                                 aria-controls="sidebarGRNs">
-                                    <i class="iconoir-receipt menu-icon"></i>
+    <i class="fas fa-file-invoice menu-icon"></i>
                                     <span>GRNs</span>
                                 </a>
                                 <div class="collapse {{ request()->routeIs('grns.*') ? 'show' : '' }}" id="sidebarGRNs">

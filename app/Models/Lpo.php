@@ -18,4 +18,9 @@ class Lpo extends Model
     public function items(){
         return $this->hasMany(LpoItem::class);
     }
+
+        public function lpo(){
+        return $this->belongsTo(Lpo::class);
+    }
+
 }

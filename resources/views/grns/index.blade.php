@@ -95,6 +95,7 @@
 @section('scripts')
 <script>
 $(function(){
+
     // 1️⃣ Initialize DataTable
     let grnTable = $('#grnTable').DataTable({
         processing: true,
@@ -104,14 +105,14 @@ $(function(){
         pageLength: 10,
         order: [[0,'desc']],
         columns: [
-            {data:'DT_RowIndex', orderable:false, searchable:false, className:'text-center'},
+            {data:'DT_RowIndex', name:'DT_RowIndex', orderable:false, searchable:false, className:'text-center'},
             {data:'lpo_no', name:'lpo_no'},
             {data:'supplier_name', name:'supplier_name'},
             {data:'date', name:'date'},
             {data:'requested_by', name:'requested_by'},
             {data:'department', name:'department'},
             {data:'project_name', name:'project_name'},
-            {data:'action', orderable:false, searchable:false, className:'text-center'},
+            {data:'action', name:'action', orderable:false, searchable:false, className:'text-center'},
         ]
     });
 
@@ -133,8 +134,10 @@ $(function(){
                         Swal.fire('Deleted!', res.message, 'success');
                         grnTable.ajax.reload(null,false);
                     },
-                    error: function(){
-                        Swal.fire('Error','Failed to delete','error');
+                    error: function(xhr){
+                        let msg = 'Failed to delete';
+                        if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                        Swal.fire('Error', msg, 'error');
                     }
                 });
             }
@@ -156,16 +159,21 @@ $(function(){
             $('#previewInvDate').text(res.inv_date);
 
             let tbody = $('#previewGrnItemsTable tbody').empty();
-            res.items.forEach((item,index)=>{
-                tbody.append(`
-                    <tr>
-                        <td>${index+1}</td>
-                        <td>${item.description}</td>
-                        <td>${item.uom}</td>
-                        <td>${item.quantity}</td>
-                    </tr>
-                `);
-            });
+            if(res.items && res.items.length){
+                res.items.forEach((item,index)=>{
+                    tbody.append(`
+                        <tr>
+                            <td>${index+1}</td>
+                            <td>${item.description}</td>
+                            <td>${item.uom}</td>
+                            <td>${item.quantity}</td>
+                        </tr>
+                    `);
+                });
+            } else {
+                tbody.append('<tr><td colspan="4" class="text-center">No items found</td></tr>');
+            }
+
             $('#grnPreviewModal').modal('show');
         }).fail(()=>Swal.fire('Error','Unable to fetch details','error'));
     });

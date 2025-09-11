@@ -11,31 +11,35 @@ use Illuminate\Support\Facades\DB;
 class GrnController extends Controller
 {
     // List all GRNs (for DataTable)
-    public function index(Request $request)
-    {
-        if ($request->ajax()) {
-            $grns = Grn::latest()->withCount('items')->get();
-            return datatables()->of($grns)
-                ->addIndexColumn()
-                ->addColumn('action', function ($grn) {
-                    return '
-                        <button class="btn btn-sm btn-primary viewBtn" data-id="'.$grn->id.'">
-                            <i class="las la-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-warning editBtn" data-id="'.$grn->id.'">
-                            <i class="las la-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger deleteBtn" data-id="'.$grn->id.'">
-                            <i class="las la-trash"></i>
-                        </button>
-                    ';
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
+public function index(Request $request)
+{
+    if ($request->ajax()) {
+        $grns = Grn::with(['lpo','items'])->latest();
 
-        return view('grns.index');
+        return datatables()->of($grns)
+            ->addIndexColumn()
+            ->addColumn('lpo_no', function($grn){
+    return optional($grn->lpo)->lpo_no ?? '-';
+            })
+            ->addColumn('action', function ($grn) {
+                return '
+                    <a class="text-secondary fs-18 viewBtn" data-id="'.$grn->id.'">
+                        <i class="las la-eye"></i>
+                    </a>
+                    <a class="text-secondary fs-18 editBtn" data-id="'.$grn->id.'">
+                        <i class="las la-pen"></i>
+                    </a>
+                    <a class="text-secondary fs-18 deleteBtn" data-id="'.$grn->id.'">
+                        <i class="las la-trash"></i>
+                    </a>
+                ';
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
+
+    return view('grns.index');
+}
 
     // Show create GRN page
     public function create()
@@ -70,6 +74,58 @@ class GrnController extends Controller
             'items' => $mappedItems
         ]);
     }
+    // Show edit GRN page
+public function edit($id)
+{
+    $grn = Grn::with('items')->findOrFail($id);
+    $lpos = Lpo::all(); // Dropdown ke liye
+    return view('grns.edit', compact('grn', 'lpos'));
+}
+
+// Update GRN
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'lpo_id' => 'required|exists:lpos,id',
+        'items' => 'required|array|min:1',
+        'items.*.description' => 'required|string',
+        'items.*.uom' => 'required|string',
+        'items.*.quantity' => 'required|numeric|min:1',
+        'supplier_name'=>'required|string',
+        'date'=>'required|date',
+        'supplier_code'=>'nullable|string',
+        'requested_by'=>'nullable|string',
+        'inv_no'=>'nullable|string',
+        'department'=>'nullable|string',
+        'inv_date'=>'nullable|date',
+        'project_name'=>'nullable|string'
+    ]);
+
+    DB::transaction(function() use ($request, $id) {
+        $grn = Grn::with('items')->findOrFail($id);
+
+        // Update GRN details
+        $grn->update($request->only([
+            'lpo_id','supplier_name','date','supplier_code',
+            'requested_by','inv_no','department','inv_date','project_name'
+        ]));
+
+        // Delete old items
+        $grn->items()->delete();
+
+        // Add updated items
+        foreach ($request->items as $item) {
+            $grn->items()->create([
+                'description' => $item['description'],
+                'uom' => $item['uom'],
+                'quantity' => $item['quantity']
+            ]);
+        }
+    });
+
+    return response()->json(['message' => 'GRN updated successfully']);
+}
+
 
     // Store GRN with items
     public function store(Request $request)
@@ -126,7 +182,7 @@ class GrnController extends Controller
     // Delete GRN
     public function destroy($id)
     {
-        $grn = Grn::findOrFail($id);
+        $grn = Grn::with('lpo')->findOrFail($id);
         DB::transaction(function() use ($grn) {
             $lpo = $grn->lpo;
             $grn->delete();
