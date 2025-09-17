@@ -24,13 +24,19 @@
             <div class="card-header">GRN Details</div>
             <div class="card-body row g-3">
 
+                <!-- Auto Generated GRN No -->
+                <div class="col-md-3">
+                    <label class="form-label">GRN No</label>
+                    <input type="text" class="form-control" id="grn_no" name="grn_no" value="{{ $grn_no }}" readonly>
+                </div>
+
                 <!-- LPO Dropdown -->
                 <div class="col-md-3">
                     <label class="form-label">Select LPO <span class="text-danger">*</span></label>
                     <select class="form-control" id="lpoSelect" name="lpo_id" required>
                         <option value="">Select LPO</option>
                         @foreach($lpos as $lpo)
-                            <option value="{{ $lpo->id }}">{{ $lpo->lpo_no }} </option>
+                        <option value="{{ $lpo->id }}">{{ $lpo->lpo_no }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -39,35 +45,46 @@
                     <label class="form-label">Supplier Name</label>
                     <input type="text" class="form-control" id="supplierName" name="supplier_name" readonly>
                 </div>
+
                 <div class="col-md-3">
                     <label class="form-label">LPO Date</label>
-                    <input type="date" class="form-control" id="lpoDate" name="date" readonly>
+                    <input type="date" class="form-control" id="lpoDate" name="lpo_date">
                 </div>
 
                 <div class="col-md-3">
                     <label class="form-label">Supplier Code</label>
-                    <input type="text" class="form-control" id="supplierCode" name="supplier_code">
+                    <input type="text" class="form-control" id="supplierCode" name="supplier_code" readonly>
                 </div>
+
                 <div class="col-md-3">
                     <label class="form-label">Requested By</label>
-                    <input type="text" class="form-control" id="requestedBy" name="requested_by">
+                    <input type="text" class="form-control" id="requestedBy" name="requested_by" readonly>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Department</label>
-                    <input type="text" class="form-control" id="department" name="department">
+
+                <div class="col-md-4">
+                    <label for="department_id" class="form-label">Department</label>
+                    <select name="department_id" id="department_id" class="form-control" required>
+                        <option value="">-- Select Department --</option>
+                        @foreach($departments as $department)
+                        <option value="{{ $department->id }}">{{ $department->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
+
 
                 <div class="col-md-3">
                     <label class="form-label">Supplier INV/DN No</label>
                     <input type="text" class="form-control" id="invNo" name="inv_no">
                 </div>
+
                 <div class="col-md-3">
                     <label class="form-label">Supplier INV/DN Date</label>
                     <input type="date" class="form-control" id="invDate" name="inv_date">
                 </div>
+
                 <div class="col-md-3">
                     <label class="form-label">Project Name</label>
-                    <input type="text" class="form-control" id="projectName" name="project_name">
+                    <input type="text" class="form-control" id="projectName" name="project_name" readonly>
                 </div>
 
             </div>
@@ -88,20 +105,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="5" class="text-center text-muted">Select LPO to fetch items</td></tr>
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Select LPO to fetch items</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <button class="btn btn-success" id="saveGrnBtn">OK</button>
+        <button class="btn btn-success" id="saveGrnBtn">Save GRN</button>
     </form>
 </div>
 @endsection
 
 @section('scripts')
 <script>
-$(document).ready(function(){
+    $(document).ready(function(){
 
     let items = [];
 
@@ -116,10 +135,11 @@ $(document).ready(function(){
 
         $.get("{{ url('grns/lpo-details') }}/" + lpoId, function(res){
             $('#supplierName').val(res.supplier_name || '');
-            $('#lpoDate').val(res.date || '');
+            $('#lpoDate').val(res.lpo_date || '');
             $('#supplierCode').val(res.supplier_code || '');
             $('#requestedBy').val(res.requested_by || '');
-            $('#department').val(res.department || '');
+            $('#departmentId').val(res.department_id || '');
+            $('#departmentName').val(res.department || '');
             $('#projectName').val(res.project_name || '');
             $('#invNo').val(res.inv_no || '');
             $('#invDate').val(res.inv_date || '');
@@ -192,7 +212,7 @@ $(document).ready(function(){
             data: $(this).serialize(),
             success: function(res){
                 Swal.fire('Success', res.message, 'success').then(()=>{
-                    window.location.reload();
+                    window.location.href = "{{ route('grns.index') }}";
                 });
             },
             error: function(xhr){

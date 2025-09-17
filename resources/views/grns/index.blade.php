@@ -21,10 +21,11 @@
             </a>
         </div>
         <div class="card-body">
-            <table class="table datatables" id="grnTable" width="100%">
+            <table class="table table-bordered table-striped table-hover datatables" id="grnTable" width="100%">
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
+                        <th>GRN No</th>
                         <th>LPO No</th>
                         <th>Supplier Name</th>
                         <th>Date</th>
@@ -54,6 +55,7 @@
         </div>
 
         <div class="details-grid mb-4">
+            <div><strong>GRN No:</strong> <span id="previewGrnNo"></span></div>
             <div><strong>LPO No:</strong> <span id="previewLpoNo"></span></div>
             <div><strong>Date:</strong> <span id="previewDate"></span></div>
             <div><strong>Supplier Name:</strong> <span id="previewSupplier"></span></div>
@@ -103,6 +105,7 @@ $(function(){
         order: [[0,'desc']],
         columns: [
             {data:'DT_RowIndex', orderable:false, searchable:false, className:'text-center'},
+            {data:'grn_no', name:'grn_no'},
             {data:'lpo_no', name:'lpo_no'},
             {data:'supplier_name', name:'supplier_name'},
             {data:'date', name:'date'},
@@ -143,6 +146,7 @@ $(function(){
     $(document).on('click','.viewBtn', function(){
         let id = $(this).data('id');
         $.get("/grns/"+id, function(res){
+            $('#previewGrnNo').text(res.grn_no);
             $('#previewLpoNo').text(res.lpo_no);
             $('#previewDate').text(res.date);
             $('#previewSupplier').text(res.supplier_name);

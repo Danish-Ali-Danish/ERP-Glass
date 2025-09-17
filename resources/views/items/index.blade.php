@@ -51,6 +51,7 @@
 </div>
 
 <!-- Item Modal -->
+<!-- Item Modal -->
 <div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -71,7 +72,20 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">UOM</label>
-                <input type="text" class="form-control" id="uom" required />
+                <select class="form-select" id="uom" required>
+                    <option value="">-- Select UOM --</option>
+                    <option value="NOS">NOS</option>
+                    <option value="SET">SET</option>
+                    <option value="PCS">PCS</option>
+                    <option value="PKT">PKT</option>
+                    <option value="SQM">SQM</option>
+                    <option value="PAIR">PAIR</option>
+                    <option value="KG">KG</option>
+                    <option value="MTR">MTR</option>
+                    <option value="LTR">LTR</option>
+                    <option value="LM">LM</option>
+                    <option value="BOX">BOX</option>
+                </select>
             </div>
             <div class="mb-3">
                 <label class="form-label">Remarks</label>

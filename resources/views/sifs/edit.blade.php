@@ -1,58 +1,72 @@
 @extends('layouts.master')
-@section('content')
+@section('content') 
 <div class="container-fluid">
+    <!-- Page Title + Breadcrumb -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
+                <h4 class="page-title">Edit Stock Issuance Form (SIF)</h4>
+                <div>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('sifs.index')}}">All SIFs</a></li>
+                        <li class="breadcrumb-item active">Edit SIF</li>
+                    </ol>
+                </div>                                
+            </div>
+        </div>
+    </div>   
 
     <!-- General Info -->
-    <form id="projectForm">
+    <form id="sifForm">
         @csrf
+        <input type="hidden" id="sif_id" value="{{ $sif->id }}">
         <div class="row g-3">
             <div class="col-12">
                 <div class="card mb-3 shadow-sm">
                     <div class="card-header">General Information</div>
                     <div class="card-body row g-3">
+
                         <div class="col-md-3">
-                            <label class="form-label">Req No</label>
-                            <input type="text" class="form-control" id="reqNo" required value="{{ $reqNo }}" readonly />
-                            <small class="text-danger d-none" id="errorReqNo"></small>
+                            <label class="form-label">SIF No</label>
+                            <input type="text" class="form-control" id="sifNo" value="{{ $sif->sif_no }}" readonly>
                         </div>
+
                         <div class="col-md-3">
                             <label class="form-label">Date</label>
-                            <input type="date" class="form-control" id="date" required />
-                            <small class="text-danger d-none" id="errorDate"></small>
+                            <input type="date" class="form-control" id="date" value="{{ $sif->date }}">
                         </div>
+
                         <div class="col-md-3">
-                            <label class="form-label">Req Date</label>
-                            <input type="date" class="form-control" id="reqDate" required />
-                            <small class="text-danger d-none" id="errorReqDate"></small>
+                            <label class="form-label">Issued Date</label>
+                            <input type="date" class="form-control" id="issuedDate" value="{{ $sif->issued_date }}">
                         </div>
+
                         <div class="col-md-3">
                             <label class="form-label">Requested By</label>
-                            <input type="text" class="form-control" id="requestedBy" required />
-                            <small class="text-danger d-none" id="errorRequestedBy"></small>
+                            <input type="text" class="form-control" id="requestedBy" value="{{ $sif->requested_by }}">
                         </div>
+
                         <div class="col-md-3">
                             <label class="form-label">Department</label>
-                            <select name="department_id" id="departmentId" class="form-control" required>
+                            <select id="departmentId" class="form-control">
                                 <option value="">Select Department</option>
                                 @foreach($departments as $dept)
-                                    <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                    <option value="{{ $dept->id }}" {{ $sif->department_id==$dept->id?'selected':'' }}>{{ $dept->name }}</option>
                                 @endforeach
                             </select>
-                            <small class="text-danger d-none" id="errorDepartment"></small>
                         </div>
+
                         <div class="col-md-3">
                             <label class="form-label">Project Name</label>
-                            <input type="text" class="form-control" id="projectName" required />
-                            <small class="text-danger d-none" id="errorProject"></small>
+                            <input type="text" class="form-control" id="projectName" value="{{ $sif->project_name }}">
                         </div>
+
                         <div class="col-md-3">
                             <label class="form-label">Remarks</label>
-                            <input type="text" class="form-control" id="remarks" />
+                            <input type="text" class="form-control" id="remarks" value="{{ $sif->remarks }}">
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Delivery Required Date</label>
-                            <input type="date" class="form-control" id="deliveryDate" />
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -64,50 +78,33 @@
         <div class="row g-3">
             <div class="col-12">
                 <div class="card shadow-sm">
-                    <div class="card-header">Add Items</div>
+                    <div class="card-header">Add / Update Items</div>
                     <div class="card-body row g-3">
 
                         <div class="col-md-3 position-relative">
                             <label>Item Code</label>
                             <input type="text" class="form-control" id="itemCodeInput" placeholder="Search Item Code...">
                             <div class="dropdown-menu search-dropdown"></div>
-                            <small class="text-danger d-none" id="errorItemCode"></small>
                         </div>
 
                         <div class="col-md-4 position-relative">
                             <label>Description</label>
                             <input type="text" class="form-control" id="itemDescInput" placeholder="Search Description...">
                             <div class="dropdown-menu search-dropdown"></div>
-                            <small class="text-danger d-none" id="errorItemDesc"></small>
                         </div>
 
                         <div class="col-md-2">
                             <label>UOM</label>
-                            <select class="form-select" id="itemUom">
-                                <option value="">-- Select UOM --</option>
-                                <option value="NOS">NOS</option>
-                                <option value="SET">SET</option>
-                                <option value="PCS">PCS</option>
-                                <option value="PKT">PKT</option>
-                                <option value="SQM">SQM</option>
-                                <option value="PAIR">PAIR</option>
-                                <option value="KG">KG</option>
-                                <option value="MTR">MTR</option>
-                                <option value="LTR">LTR</option>
-                                <option value="LM">LM</option>
-                                <option value="BOX">BOX</option>
-                            </select>
+                            <input type="text" class="form-control" id="itemUom" readonly>
                         </div>
-
 
                         <div class="col-md-2">
                             <label>Quantity</label>
                             <input type="number" class="form-control" id="itemQty">
-                            <small class="text-danger d-none" id="errorItemQty"></small>
                         </div>
 
                         <div class="col-md-1 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100" id="addItemBtn">Add Item</button>
+                            <button type="submit" class="btn btn-primary w-100" id="addItemBtn">Add / Update</button>
                         </div>
 
                     </div>
@@ -140,17 +137,11 @@
         </div>
     </div>
 
-    <button class="btn btn-success mt-3" id="saveReqBtn">Save Requisition</button>
-
+    <button class="btn btn-success mt-3" id="updateSifBtn">Update SIF</button>
 </div>
 
 <style>
-/* Dropdown menu width aligned with input */
-.search-dropdown {
-    width: 90%;
-    max-height: 200px;
-    overflow-y: auto;
-}
+.search-dropdown { width: 90%; max-height: 200px; overflow-y: auto; }
 .position-relative { position: relative; }
 .dropdown-item { cursor: pointer; }
 </style>
@@ -160,7 +151,7 @@
 <script>
 $(document).ready(function(){
 
-    let items = [];
+    let items = @json($sif->items);
     let editIndex = null;
     let selectedItem = null;
 
@@ -183,6 +174,7 @@ $(document).ready(function(){
             `);
         });
     }
+    renderItemsTable();
 
     function fetchItems(query, type, callback){
         $.get("{{ route('requisitions.items.search') }}", { q:query, type:type }, function(res){
@@ -202,10 +194,10 @@ $(document).ready(function(){
                 if(results.length){
                     results.forEach((r,i)=>{
                         dropdown.append(`
-                            <a class="dropdown-item" 
-                               data-id="${r.id}" 
-                               data-code="${r.item_code}" 
-                               data-desc="${r.description}" 
+                            <a class="dropdown-item"
+                               data-id="${r.id}"
+                               data-code="${r.item_code}"
+                               data-desc="${r.description}"
                                data-uom="${r.uom}">
                                ${type==='code'?r.item_code:r.description}
                             </a>`);
@@ -217,43 +209,34 @@ $(document).ready(function(){
             });
         }
 
-        // focus par bhi dropdown show karo
-        input.on('focus', function(){
+        input.on('focus input', function(){
             let query = $(this).val();
             showResults(query);
         });
 
-        // typing par bhi search karo
-        input.on('input', function(){
-            let query = $(this).val();
-            showResults(query);
-        });
-
-        // keyboard navigation
         input.on('keydown', function(e){
-            let items = dropdown.find('.dropdown-item');
-            if(!items.length) return;
+            let opts = dropdown.find('.dropdown-item');
+            if(!opts.length) return;
 
             if(e.key === 'ArrowDown'){
                 e.preventDefault();
-                activeIndex = (activeIndex + 1) % items.length;
-                items.removeClass('active');
-                $(items[activeIndex]).addClass('active');
+                activeIndex = (activeIndex + 1) % opts.length;
+                opts.removeClass('active');
+                $(opts[activeIndex]).addClass('active');
             } else if(e.key === 'ArrowUp'){
                 e.preventDefault();
-                activeIndex = (activeIndex - 1 + items.length) % items.length;
-                items.removeClass('active');
-                $(items[activeIndex]).addClass('active');
+                activeIndex = (activeIndex - 1 + opts.length) % opts.length;
+                opts.removeClass('active');
+                $(opts[activeIndex]).addClass('active');
             } else if(e.key === 'Enter'){
                 e.preventDefault();
                 if(activeIndex>=0){
-                    $(items[activeIndex]).trigger('click');
+                    $(opts[activeIndex]).trigger('click');
                     dropdown.removeClass('show');
                 }
             }
         });
 
-        // item select
         dropdown.on('click','.dropdown-item', function(){
             selectedItem = {
                 id: $(this).data('id'),
@@ -267,7 +250,6 @@ $(document).ready(function(){
             dropdown.removeClass('show');
         });
 
-        // bahar click par dropdown band
         $(document).on('click', function(e){
             if(!$(e.target).closest(inputSelector+', .search-dropdown').length){
                 dropdown.removeClass('show');
@@ -290,7 +272,7 @@ $(document).ready(function(){
         if(editIndex!==null){
             items[editIndex] = newItem;
             editIndex = null;
-            $('#addItemBtn').text('Add Item');
+            $('#addItemBtn').text('Add / Update');
         } else {
             if(items.find(i=>i.id===newItem.id)){ Swal.fire('Error','This item already exists','error'); return; }
             items.push(newItem);
@@ -330,31 +312,46 @@ $(document).ready(function(){
         });
     });
 
-    // Save Requisition
-    $('#saveReqBtn').click(function(){
+    // Update SIF
+    $('#updateSifBtn').click(function(e){
+        e.preventDefault();
         if(items.length===0){ Swal.fire('Error','Add at least one item','error'); return; }
 
-        $.post("{{ route('requisitions.store') }}", {
+        let data = {
             _token: '{{ csrf_token() }}',
-            req_no: $('#reqNo').val(),
+            sif_no: $('#sifNo').val(),
             date: $('#date').val(),
-            req_date: $('#reqDate').val(),
+            issued_date: $('#issuedDate').val(),
             requested_by: $('#requestedBy').val(),
             department_id: $('#departmentId').val(),
             project_name: $('#projectName').val(),
-            remarks: $('#remarks').val(),
-            delivery_date: $('#deliveryDate').val(),
-            items: items
-        }, function(res){
-            Swal.fire('Success',res.message,'success');
-            items=[];
-            renderItemsTable();
-            $('#projectForm')[0].reset();
-            $('#itemForm')[0].reset();
-            $('#itemUom').val('');
-            $('#addItemBtn').text('Add Item');
-        }).fail(function(err){
-            Swal.fire('Error','Validation failed','error');
+            remarks: $('#remarks').val()
+        };
+
+        items.forEach((item, index)=>{
+            data[`items[${index}][item_code]`] = item.item_code;
+            data[`items[${index}][description]`] = item.description;
+            data[`items[${index}][uom]`] = item.uom;
+            data[`items[${index}][quantity]`] = item.quantity;
+        });
+
+        $.ajax({
+            url: "/sifs/"+$('#sif_id').val(),
+            type: "PUT",
+            data: data,
+            success: function(res){
+                Swal.fire('Updated!', 'SIF updated successfully.', 'success')
+                    .then(()=>window.location.href="{{ route('sifs.index') }}");
+            },
+            error: function(xhr){
+                if(xhr.status === 422){
+                    let errors = xhr.responseJSON.errors;
+                    let msg = Object.values(errors).map(e=>e.join(', ')).join('<br>');
+                    Swal.fire('Validation Error', msg, 'error');
+                } else {
+                    Swal.fire('Error','Something went wrong','error');
+                }
+            }
         });
     });
 

@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             RequisitionSeeder::class,
             LpoSeeder::class,
+            SifSeeder::class,
+            PermissionSeeder::class,
             
         ]);
     }

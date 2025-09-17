@@ -10,6 +10,8 @@ use App\Http\Controllers\RequisitionController;
 use App\Http\Controllers\LpoController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\GrnController;
+use App\Http\Controllers\SifController;
+
 
 
 Route::get('/', function () {
@@ -37,15 +39,25 @@ Route::get('/requisitions/{id}/edit', [RequisitionController::class, 'edit'])->n
 Route::put('/requisitions/{id}', [RequisitionController::class, 'update'])->name('requisitions.update');
 Route::delete('/requisitions/{id}', [RequisitionController::class, 'destroy'])->name('requisitions.destroy');
 Route::get('requisitions/items/search', [RequisitionController::class,'searchItems'])->name('requisitions.items.search');
+    Route::resource('roles', RoleController::class);
 
 Route::resource('lpos', LpoController::class);
 Route::resource('items', ItemController::class);
 Route::get('/lpos/search-items', [LpoController::class, 'searchItems'])->name('lpos.items.search');
-
-
 Route::prefix('grns')->group(function(){
-    Route::get('/', [GrnController::class,'index'])->name('grns.index');
-    Route::get('/create', [GrnController::class,'create'])->name('grns.create');
-    Route::post('/store', [GrnController::class,'store'])->name('grns.store');
-    Route::get('/lpo-details/{id}', [GrnController::class,'getLpoDetails']);
+    Route::get('/', [GrnController::class, 'index'])->name('grns.index');
+    Route::get('/create', [GrnController::class, 'create'])->name('grns.create');
+    Route::post('/store', [GrnController::class, 'store'])->name('grns.store');
+    Route::get('/lpo-details/{id}', [GrnController::class, 'getLpoDetails'])->name('grns.lpo-details');
 });
+
+Route::prefix('sifs')->group(function () {
+    Route::get('/', [SifController::class, 'index'])->name('sifs.index');
+    Route::get('/add-new', [SifController::class, 'create'])->name('sifs.add-new');
+    Route::post('/', [SifController::class, 'store'])->name('sifs.store');
+    Route::get('/{id}', [SifController::class, 'show'])->name('sifs.show');
+    Route::get('/{id}/edit', [SifController::class, 'edit'])->name('sifs.edit');
+    Route::put('/{id}', [SifController::class, 'update'])->name('sifs.update');
+    Route::delete('/{id}', [SifController::class, 'destroy'])->name('sifs.destroy');
+});
+
