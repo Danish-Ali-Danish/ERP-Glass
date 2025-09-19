@@ -36,14 +36,16 @@
                     <select class="form-control" id="lpoSelect" name="lpo_id" required>
                         <option value="">Select LPO</option>
                         @foreach($lpos as $lpo)
-                        <option value="{{ $lpo->id }}">{{ $lpo->lpo_no }}</option>
+                            @if($lpo->grn_generated == 0) {{-- ✅ sirf un LPOs ko show karna jinke GRN abhi nahi bane --}}
+                                <option value="{{ $lpo->id }}">{{ $lpo->lpo_no }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
 
                 <div class="col-md-3">
                     <label class="form-label">Supplier Name</label>
-                    <input type="text" class="form-control" id="supplierName" name="supplier_name" readonly>
+                    <input type="text" class="form-control" id="supplierName" name="supplier_name" required>
                 </div>
 
                 <div class="col-md-3">
@@ -53,12 +55,12 @@
 
                 <div class="col-md-3">
                     <label class="form-label">Supplier Code</label>
-                    <input type="text" class="form-control" id="supplierCode" name="supplier_code" readonly>
+                    <input type="text" class="form-control" id="supplierCode" name="supplier_code" required>
                 </div>
 
                 <div class="col-md-3">
                     <label class="form-label">Requested By</label>
-                    <input type="text" class="form-control" id="requestedBy" name="requested_by" readonly>
+                    <input type="text" class="form-control" id="requestedBy" name="requested_by" required>
                 </div>
 
                 <div class="col-md-4">
@@ -70,7 +72,6 @@
                         @endforeach
                     </select>
                 </div>
-
 
                 <div class="col-md-3">
                     <label class="form-label">Supplier INV/DN No</label>
@@ -84,7 +85,7 @@
 
                 <div class="col-md-3">
                     <label class="form-label">Project Name</label>
-                    <input type="text" class="form-control" id="projectName" name="project_name" readonly>
+                    <input type="text" class="form-control" id="projectName" name="project_name" required>
                 </div>
 
             </div>
@@ -120,7 +121,7 @@
 
 @section('scripts')
 <script>
-    $(document).ready(function(){
+$(document).ready(function(){
 
     let items = [];
 
@@ -133,13 +134,12 @@
             return;
         }
 
-        $.get("{{ url('grns/lpo-details') }}/" + lpoId, function(res){
+        $.get("{{ url('lpo') }}/" + lpoId + "/details", function(res){
             $('#supplierName').val(res.supplier_name || '');
             $('#lpoDate').val(res.lpo_date || '');
             $('#supplierCode').val(res.supplier_code || '');
             $('#requestedBy').val(res.requested_by || '');
-            $('#departmentId').val(res.department_id || '');
-            $('#departmentName').val(res.department || '');
+            $('#department_id').val(res.department_id || '');
             $('#projectName').val(res.project_name || '');
             $('#invNo').val(res.inv_no || '');
             $('#invDate').val(res.inv_date || '');

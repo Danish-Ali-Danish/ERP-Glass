@@ -44,12 +44,8 @@ Route::get('requisitions/items/search', [RequisitionController::class,'searchIte
 Route::resource('lpos', LpoController::class);
 Route::resource('items', ItemController::class);
 Route::get('/lpos/search-items', [LpoController::class, 'searchItems'])->name('lpos.items.search');
-Route::prefix('grns')->group(function(){
-    Route::get('/', [GrnController::class, 'index'])->name('grns.index');
-    Route::get('/create', [GrnController::class, 'create'])->name('grns.create');
-    Route::post('/store', [GrnController::class, 'store'])->name('grns.store');
-    Route::get('/lpo-details/{id}', [GrnController::class, 'getLpoDetails'])->name('grns.lpo-details');
-});
+Route::resource('grns', GrnController::class);
+Route::get('lpo/{id}/details', [GrnController::class, 'getLpoDetails'])->name('grns.lpo.details');
 
 Route::prefix('sifs')->group(function () {
     Route::get('/', [SifController::class, 'index'])->name('sifs.index');

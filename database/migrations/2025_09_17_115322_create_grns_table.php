@@ -15,6 +15,7 @@ return new class extends Migration
         $table->id();
         $table->string('grn_no')->unique(); // Auto generated GRN number
         $table->unsignedBigInteger('lpo_id')->nullable(); // Foreign key to LPO
+        $table->date('lpo_date')->nullable();
 
         $table->string('supplier_name')->nullable();
         $table->string('supplier_code')->nullable();

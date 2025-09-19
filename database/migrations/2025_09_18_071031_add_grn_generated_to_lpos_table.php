@@ -9,14 +9,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up()
+  public function up(): void
 {
     Schema::table('lpos', function (Blueprint $table) {
-        $table->boolean('grn_generated')->default(false)->after('id');
+        $table->boolean('grn_generated')->default(0)->after('id');
     });
 }
 
-public function down()
+public function down(): void
 {
     Schema::table('lpos', function (Blueprint $table) {
         $table->dropColumn('grn_generated');
