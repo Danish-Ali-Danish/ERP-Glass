@@ -57,3 +57,16 @@ Route::prefix('sifs')->group(function () {
     Route::delete('/{id}', [SifController::class, 'destroy'])->name('sifs.destroy');
 });
 
+use App\Http\Controllers\WorkOrderController;
+
+// Work Orders Routes
+Route::prefix('workorders')->name('workorders.')->group(function () {
+    Route::get('/', [WorkOrderController::class, 'index'])->name('index');       // list all
+    Route::get('/create', [WorkOrderController::class, 'create'])->name('create'); // create form
+    Route::post('/', [WorkOrderController::class, 'store'])->name('store');      // save new
+    Route::get('/{workorder}', [WorkOrderController::class, 'show'])->name('show'); // single record
+    Route::get('/{workorder}/edit', [WorkOrderController::class, 'edit'])->name('edit'); // edit form
+    Route::put('/{workorder}', [WorkOrderController::class, 'update'])->name('update'); // update record
+    Route::delete('/{workorder}', [WorkOrderController::class, 'destroy'])->name('destroy'); // delete record
+});
+Route::get('/workorders/{id}/preview', [WorkOrderController::class, 'preview'])->name('workorders.preview');

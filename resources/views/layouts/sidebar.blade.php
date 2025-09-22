@@ -138,6 +138,31 @@
                             </ul>
                         </div>
                     </li>
+                    <!-- Work Orders -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('workorders.*') ? '' : 'collapsed' }}"
+                            href="#sidebarWorkOrders" data-bs-toggle="collapse" role="button"
+                            aria-expanded="{{ request()->routeIs('workorders.*') ? 'true' : 'false' }}"
+                            aria-controls="sidebarWorkOrders">
+                            <i class="las la-briefcase menu-icon"></i>
+                            <span>Work Orders</span>
+                        </a>
+                        <div class="collapse {{ request()->routeIs('workorders.*') ? 'show' : '' }}"
+                            id="sidebarWorkOrders">
+                            <ul class="nav flex-column">
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('workorders.create') ? 'active' : '' }}"
+                                        href="{{ route('workorders.create') }}">Add New</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('workorders.index') ? 'active' : '' }}"
+                                        href="{{ route('workorders.index') }}">Saved Work Orders</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+
 
 
 

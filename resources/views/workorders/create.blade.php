@@ -7,10 +7,10 @@
         <div class="col-sm-12">
             <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
                 <h4 class="page-title">New Work Order</h4>
-                <div class="">
+                <div>
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('lpos.index')}}">All Work Orders</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('workorders.index')}}">All Work Orders</a></li>
                         <li class="breadcrumb-item active">New Work Order</li>
                     </ol>
                 </div>
@@ -31,8 +31,8 @@
                             <input type="text" class="form-control" id="customerName" required />
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Customer Mobile</label>
-                            <input type="text" class="form-control" id="customerMobile" />
+                            <label class="form-label">Mobile No</label>
+                            <input type="number" class="form-control" id="customerMobile" />
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Date</label>
@@ -40,9 +40,8 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Work Order No</label>
-                            <input type="text" class="form-control" id="workOrderNo"  readonly />
+                            <input type="text" class="form-control" id="workOrderNo" value="{{ $workOrderNo }}" readonly />
                         </div>
-
                         <div class="col-md-3">
                             <label class="form-label">Work Order Type</label>
                             <input type="text" class="form-control" id="workOrderType" />
@@ -51,6 +50,35 @@
                             <label class="form-label">Customer Ref</label>
                             <input type="text" class="form-control" id="customerRef" />
                         </div>
+
+                        <!-- Processes (inline inside General Info) -->
+                        <div class="col-12">
+                            <label class="form-label d-block">Processes</label>
+                            <div class="row">
+                                @php
+                                    $processes = [
+                                        "CUTTING",
+                                        "GRINDING & SEAMING",
+                                        "POLISHING & BEVELING",
+                                        "DRILLING & SANDBLASTING",
+                                        "TEMPERING & BENDING",
+                                        "DOUBLE GLAZING",
+                                        "LAMINATION",
+                                        "SMART FILM",
+                                        "PACKING",
+                                    ];
+                                @endphp
+                                @foreach($processes as $process)
+                                    <div class="col-md-3 col-6">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input processes" value="{{ $process }}" id="process_{{ $loop->index }}">
+                                            <label class="form-check-label" for="process_{{ $loop->index }}">{{ $process }}</label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <!-- End Processes -->
                     </div>
                 </div>
             </div>
@@ -62,23 +90,23 @@
         <div class="row g-3">
             <div class="col-12">
                 <div class="card shadow-sm">
-                    <div class="card-header">Add Glass Specification</div>
+                    <div class="card-header">Add Items</div>
                     <div class="card-body row g-3">
 
                         <div class="col-md-2">
-                            <label>Outer Panel W</label>
+                            <label>Outer W (mm)</label>
                             <input type="number" step="0.01" class="form-control" id="outerW">
                         </div>
                         <div class="col-md-2">
-                            <label>Outer Panel H</label>
+                            <label>Outer H (mm)</label>
                             <input type="number" step="0.01" class="form-control" id="outerH">
                         </div>
                         <div class="col-md-2">
-                            <label>Inner Panel W</label>
+                            <label>Inner W (mm)</label>
                             <input type="number" step="0.01" class="form-control" id="innerW">
                         </div>
                         <div class="col-md-2">
-                            <label>Inner Panel H</label>
+                            <label>Inner H (mm)</label>
                             <input type="number" step="0.01" class="form-control" id="innerH">
                         </div>
                         <div class="col-md-1">
@@ -87,22 +115,22 @@
                         </div>
                         <div class="col-md-1">
                             <label>SQM</label>
-                            <input type="number" step="0.01" class="form-control" id="sqm">
+                            <input type="number" step="0.01" class="form-control" id="sqm" readonly>
                         </div>
                         <div class="col-md-1">
-                            <label>L.M.</label>
-                            <input type="number" step="0.01" class="form-control" id="lm">
+                            <label>LM</label>
+                            <input type="number" step="0.01" class="form-control" id="lm" readonly>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <label>Chargeable SQM</label>
-                            <input type="number" step="0.01" class="form-control" id="chargeableSqm">
+                            <input type="number" step="0.01" class="form-control" id="chargeableSqm" readonly>
                         </div>
                         <div class="col-md-2">
                             <label>Amount</label>
-                            <input type="number" step="0.01" class="form-control" id="amount">
+                            <input type="number" step="0.01" class="form-control" id="amount" readonly>
                         </div>
                         <div class="col-md-2">
-                            <label>Special Instructions</label>
+                            <label>Instructions</label>
                             <input type="text" class="form-control" id="instructions">
                         </div>
                         <div class="col-md-1 d-flex align-items-end">
@@ -119,9 +147,9 @@
     <div class="row g-3">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header">Glass Specification List</div>
+                <div class="card-header">Items List</div>
                 <div class="card-body">
-                    <table class="table" id="itemsTable">
+                    <table class="table datatables" id="itemsTable">
                         <thead class="table-light">
                             <tr>
                                 <th>#</th>
@@ -131,7 +159,7 @@
                                 <th>Inner H</th>
                                 <th>Qty</th>
                                 <th>SQM</th>
-                                <th>L.M.</th>
+                                <th>LM</th>
                                 <th>Chargeable SQM</th>
                                 <th>Amount</th>
                                 <th>Instructions</th>
@@ -140,28 +168,6 @@
                         </thead>
                         <tbody></tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Summary Section -->
-    <div class="row mt-3">
-        <div class="col-md-4 offset-md-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between py-1">
-                        <strong>Sub Total:</strong>
-                        <span id="subTotal">0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-1">
-                        <strong>VAT (5%):</strong>
-                        <span id="vat">0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-1">
-                        <strong>NET Total:</strong>
-                        <span id="netTotal">0.00</span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -178,14 +184,30 @@ $(document).ready(function(){
     let items = [];
     let editIndex = null;
 
+    // Auto Calculate fields
+    function calculateFields(){
+        let outerW = parseFloat($('#outerW').val()) || 0;
+        let outerH = parseFloat($('#outerH').val()) || 0;
+        let qty = parseFloat($('#qty').val()) || 0;
+
+        let sqm = ((outerW * outerH) / 1000000) * qty;
+        let lm = ((2 * (outerW + outerH)) / 1000) * qty;
+        let chargeableSqm = sqm < 1 && sqm > 0 ? 1 : sqm;
+        let amount = chargeableSqm * 100; // demo fixed rate
+
+        $('#sqm').val(sqm.toFixed(2));
+        $('#lm').val(lm.toFixed(2));
+        $('#chargeableSqm').val(chargeableSqm.toFixed(2));
+        $('#amount').val(amount.toFixed(2));
+    }
+
+    $('#outerW,#outerH,#qty').on('input', calculateFields);
+
+    // Render Items Table
     function renderItemsTable(){
         let tbody = $('#itemsTable tbody');
         tbody.html('');
-        let subTotal = 0;
-
         items.forEach((item,index)=>{
-            let total = parseFloat(item.amount) || 0;
-            subTotal += total;
             tbody.append(`
                 <tr>
                     <td>${index+1}</td>
@@ -206,34 +228,27 @@ $(document).ready(function(){
                 </tr>
             `);
         });
-
-        let vat = subTotal * 0.05;
-        let netTotal = subTotal + vat;
-        $('#subTotal').text(subTotal.toFixed(2));
-        $('#vat').text(vat.toFixed(2));
-        $('#netTotal').text(netTotal.toFixed(2));
     }
 
-    // Add / Update Item
+    // Add/Update Item
     $('#itemForm').submit(function(e){
         e.preventDefault();
-
-        let newItem={
-            outer_w:$('#outerW').val(),
-            outer_h:$('#outerH').val(),
-            inner_w:$('#innerW').val(),
-            inner_h:$('#innerH').val(),
-            qty:$('#qty').val(),
-            sqm:$('#sqm').val(),
-            lm:$('#lm').val(),
-            chargeable_sqm:$('#chargeableSqm').val(),
-            amount:$('#amount').val(),
-            instructions:$('#instructions').val(),
+        let newItem = {
+            outer_w: $('#outerW').val(),
+            outer_h: $('#outerH').val(),
+            inner_w: $('#innerW').val(),
+            inner_h: $('#innerH').val(),
+            qty: $('#qty').val(),
+            sqm: $('#sqm').val(),
+            lm: $('#lm').val(),
+            chargeable_sqm: $('#chargeableSqm').val(),
+            amount: $('#amount').val(),
+            instructions: $('#instructions').val(),
         };
 
-        if(editIndex!==null){
-            items[editIndex]=newItem;
-            editIndex=null;
+        if(editIndex !== null){
+            items[editIndex] = newItem;
+            editIndex = null;
             $('#addItemBtn').text('Add');
         } else {
             items.push(newItem);
@@ -243,10 +258,10 @@ $(document).ready(function(){
         $('#itemForm')[0].reset();
     });
 
-    // Edit / Delete
+    // Edit Item
     $('#itemsTable').on('click','.editItemBtn',function(){
-        let index=$(this).data('index');
-        let item=items[index];
+        let index = $(this).data('index');
+        let item = items[index];
         $('#outerW').val(item.outer_w);
         $('#outerH').val(item.outer_h);
         $('#innerW').val(item.inner_w);
@@ -257,28 +272,40 @@ $(document).ready(function(){
         $('#chargeableSqm').val(item.chargeable_sqm);
         $('#amount').val(item.amount);
         $('#instructions').val(item.instructions);
-        editIndex=index;
+        editIndex = index;
         $('#addItemBtn').text('Update');
     });
 
+    // Delete Item
     $('#itemsTable').on('click','.deleteItemBtn',function(){
-        let index=$(this).data('index');
-        items.splice(index,1);
-        renderItemsTable();
+        let index = $(this).data('index');
+        Swal.fire({
+            title:'Are you sure?',
+            icon:'warning',
+            showCancelButton:true,
+            confirmButtonColor:'#3085d6',
+            confirmButtonText:'Yes, delete it!'
+        }).then(result=>{
+            if(result.isConfirmed){
+                items.splice(index,1);
+                renderItemsTable();
+            }
+        });
     });
 
     // Save Work Order
     $('#saveWorkOrderBtn').click(function(){
-        if(!$('#customerName').val() || !$('#date').val()){
-            alert('Customer Name and Date are required');
-            return;
-        }
-        if(items.length===0){
-            alert('Add at least one Glass Specification item');
+        if(items.length === 0){
+            Swal.fire({icon:'error',title:'Error',text:'Add at least one item'});
             return;
         }
 
-        $.post("{{ route('lpos.store') }}",{
+        let processes = [];
+        $('.processes:checked').each(function(){
+            processes.push($(this).val());
+        });
+
+        $.post("{{ route('workorders.store') }}",{
             _token:'{{ csrf_token() }}',
             customer_name:$('#customerName').val(),
             customer_mobile:$('#customerMobile').val(),
@@ -286,15 +313,13 @@ $(document).ready(function(){
             work_order_no:$('#workOrderNo').val(),
             work_order_type:$('#workOrderType').val(),
             customer_ref:$('#customerRef').val(),
-            items:items,
-            sub_total:$('#subTotal').text(),
-            vat:$('#vat').text(),
-            net_total:$('#netTotal').text(),
+            processes:processes,
+            items:items
         },function(res){
-            alert('Work Order Saved Successfully!');
-            location.href="{{ route('lpos.index') }}";
-        }).fail(function(){
-            alert('Error while saving Work Order');
+            Swal.fire({icon:'success',title:'Success',text:res.message})
+            .then(()=>window.location.href="{{ route('workorders.index') }}");
+        }).fail(function(err){
+            Swal.fire({icon:'error',title:'Error',text:'Validation failed'});
         });
     });
 
