@@ -1,4 +1,3 @@
-
 try {
     // Dropdown stop
     var dropdownMenus = document.querySelectorAll('.dropdown-menu.stop');
@@ -15,38 +14,41 @@ try {
     lucide.createIcons();
 } catch (err) { }
 
-
 try {
     // TopBar Light Dark
     var themeColorToggle = document.getElementById('light-dark-mode');
+
+    // ✅ Load theme from localStorage
+    var savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+        document.documentElement.setAttribute("data-bs-theme", savedTheme);
+    }
+
     if (themeColorToggle) {
         themeColorToggle.addEventListener('click', function (e) {
             var currentTheme = document.documentElement.getAttribute('data-bs-theme');
-            if (currentTheme === 'light') {
-                document.documentElement.setAttribute('data-bs-theme', 'dark');
-            } else {
-                document.documentElement.setAttribute('data-bs-theme', 'light');
-            }
+            var newTheme = (currentTheme === 'light') ? 'dark' : 'light';
+
+            // Set new theme
+            document.documentElement.setAttribute('data-bs-theme', newTheme);
+
+            // ✅ Save to localStorage
+            localStorage.setItem("theme", newTheme);
         });
     }
 } catch (err) { }
 
 try {
-
-    //collapsed
+    // collapsed
     var collapsedToggle = document.querySelector(".mobile-menu-btn");
     const sidebarOverlay = document.querySelector('.startbar-overlay');
     collapsedToggle?.addEventListener('click', function () {
-
         var sidebarSize = document.body.getAttribute("data-sidebar-size");
-
         if (sidebarSize == "collapsed") {
             document.body.setAttribute("data-sidebar-size", "default")
-
         } else {
             document.body.setAttribute("data-sidebar-size", "collapsed")
         }
-
     });
 
     if (sidebarOverlay) {
@@ -68,7 +70,6 @@ try {
     })
 
     changeSidebarSize();
-
 } catch (err) {
 }
 
@@ -83,10 +84,7 @@ try {
 } catch (err) {
 }
 
-
 try {
-
-   
     changeSidebarSize();
 
     // Add event listener for window resize
@@ -97,14 +95,11 @@ try {
     })
 
     changeSidebarSize();
-
 } catch (err) {
 }
 
-
 /*********************/
 /*   Menu Sticky     */
-
 /*********************/
 function windowScroll() {
     const navbar = document.getElementById("topbar-custom");
@@ -124,7 +119,6 @@ window.addEventListener('scroll', (ev) => {
     ev.preventDefault();
     windowScroll();
 })
-
 
 const initVerticalMenu = () => {
     const navCollapse = document.querySelectorAll('.navbar-nav li .collapse');

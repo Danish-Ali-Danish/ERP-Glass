@@ -1,32 +1,22 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Role extends Model
 {
-    protected $fillable = ['name', 'display_name', 'guard_name'];
+    use HasFactory;
 
-    // Role -> Permissions (many-to-many)
+    protected $fillable = ['name','display_name'];
+
     public function permissions()
     {
-        return $this->belongsToMany(Permission::class, 'permission_role')
-                    ->withTimestamps();
+        return $this->belongsToMany(Permission::class, 'permission_role');
     }
 
-    // Role -> Users
     public function users()
     {
-        return $this->belongsToMany(User::class, 'role_user')
-                    ->withTimestamps();
-    }
-
-    // helper: attach permission by name or id
-    public function givePermission($permission)
-    {
-        $permId = $permission instanceof Permission ? $permission->id : Permission::where('name', $permission)->value('id');
-        if ($permId) $this->permissions()->syncWithoutDetaching([$permId]);
-        return $this;
+        return $this->belongsToMany(User::class, 'role_user');
     }
 }

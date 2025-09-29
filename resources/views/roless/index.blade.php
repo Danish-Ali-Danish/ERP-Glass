@@ -120,24 +120,21 @@
                                 <div class="group-header p-3">
                                     <h3 class="fw-medium text-dark mb-0">{{ $group['name'] }}</h3>
                                 </div>
-                                <div class="row p-3">
+                                <div class="group-permissions permission-list-grid p-3">
                                     @foreach($group['permissions'] as $perm)
-                                    <div class="col-md-6 mb-1">
-                                        <div class="permission-item d-flex align-items-center p-2 rounded border">
-                                            <input type="checkbox" name="permissions[]" value="{{ $perm['id'] }}"
-                                                id="perm-{{ $perm['id'] }}"
-                                                class="perm-checkbox form-check-input permission-checkbox me-2">
-                                            <label for="perm-{{ $perm['id'] }}" class="form-check-label text-dark">
-                                                {{ $perm['name'] }}
-                                            </label>
-                                        </div>
+                                    <div class="permission-item d-flex align-items-center p-2 rounded border">
+                                        <input type="checkbox" name="permissions[]" value="{{ $perm['id'] }}"
+                                            id="perm-{{ $perm['id'] }}"
+                                            class="perm-checkbox form-check-input permission-checkbox">
+                                        <label for="perm-{{ $perm['id'] }}" class="form-check-label text-dark">
+                                            {{ $perm['name'] }}
+                                        </label>
                                     </div>
                                     @endforeach
                                 </div>
                             </div>
                             @endforeach
                         </div>
-
                     </div>
 
                     <!-- ACTION BUTTONS -->
@@ -162,8 +159,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="mobileEditBtn" class="btn btn-primary fs-18">
-                    <i class="las la-pen"></i>Edit 
+                <button id="mobileEditBtn" class="btn btn-primary-custom">
+                    <i class="fas fa-edit me-2"></i> Edit
                 </button>
             </div>
         </div>
@@ -215,7 +212,7 @@
             </div>
             <div class="modal-footer">
                 <button id="mobileCancelEditBtn" class="btn btn-outline-secondary">Cancel</button>
-                <button id="mobileSaveBtn" class="btn btn-primary">Save Changes</button>
+                <button id="mobileSaveBtn" class="btn btn-primary-custom">Save Changes</button>
             </div>
         </div>
     </div>
@@ -402,18 +399,19 @@
     function closeMobileEditModal() {
         mobileEditModalInstance.hide();
     }
+
+    // Desktop view me role ki permissions render kare
+    // Desktop view me role ki permissions render kare
 function renderPermissionsDisplay() {
     if (!selectedRole) return;
 
-    let html = `<div class="row">`; 
-    let hasPermissions = false; // flag
+    let html = `<div class="row">`; // bootstrap row start
 
-    permissionGroups.forEach((group) => {
+    permissionGroups.forEach((group, index) => {
         let groupHtml = "";
         group.permissions.forEach(p => {
             const has = selectedRole.permissions.includes(p.id);
             if (has) {
-                hasPermissions = true; // agar ek bhi mila to flag true
                 groupHtml += `
                     <li class="d-flex align-items-center mb-2">
                         <i class="fas fa-check-circle text-success me-2"></i>
@@ -435,19 +433,16 @@ function renderPermissionsDisplay() {
         }
     });
 
-    html += `</div>`; 
+    html += `</div>`; // row end
 
-    // Agar koi bhi permission assigned nahi
-    if (!hasPermissions) {
-        html = `
-            <div class="text-center">
-                <i class="fas fa-shield-alt display-4 mb-3"></i>
-                <p>No permissions assigned</p>
-            </div>
-        `;
-    }
+    // Agar koi permission assign na ho
+    permissionView.innerHTML = html || `
+        <div class="text-center">
+            <i class="fas fa-shield-alt display-4 mb-3"></i>
+            <p>No permissions assigned</p>
+        </div>
+    `;
 
-    permissionView.innerHTML = html;
     permissionView.classList.remove('permission-view-empty');
 }
 

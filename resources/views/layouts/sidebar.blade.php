@@ -18,150 +18,223 @@
             <div class="d-flex align-items-start flex-column w-100">
                 <!-- Navigation -->
                 <ul class="navbar-nav mb-auto w-100">
-                    <li class="menu-label mt-2">
-                        <span>Main</span>
-                    </li>
+                
 
+{{-- Dashboard --}}
+@canAccess('view-dashboard')
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('dashboard') }}">
+        <i class="las la-home menu-icon"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
+@endcanAccess
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}">
-                            <i class="las la-home menu-icon"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
+{{-- Departments --}}
+@canAccess('view-departments')
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('departments.*') ? 'active' : '' }}"
+        href="{{ route('departments.index') }}">
+        <i class="las la-building menu-icon"></i>
+        <span>Departments</span>
+    </a>
+</li>
+@endcanAccess
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('departments.*') ? 'active' : '' }}"
-                            href="{{ route('departments.index') }}">
-                            <i class="las la-building menu-icon"></i>
-                            <span>Departments</span>
-                        </a>
-                    </li>
+{{-- Items --}}
+@canAccess('view-items')
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('items.*') ? 'active' : '' }}"
+        href="{{ route('items.index') }}">
+        <i class="las la-cubes menu-icon"></i>
+        <span>Items</span>
+    </a>
+</li>
+@endcanAccess
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('items.*') ? 'active' : '' }}"
-                            href="{{ route('items.index') }}">
-                            <i class="las la-cubes menu-icon"></i>
-                            <span>Items</span>
-                        </a>
-                    </li>
+{{-- Material Requisitions --}}
+@canAccess('view-requisitions')
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('requisitions.*') ? '' : 'collapsed' }}"
+        href="#sidebarRequisitions" data-bs-toggle="collapse" role="button"
+        aria-expanded="{{ request()->routeIs('requisitions.*') ? 'true' : 'false' }}"
+        aria-controls="sidebarRequisitions">
+        <i class="las la-tasks menu-icon"></i>
+        <span>Material Requisitions</span>
+    </a>
+    <div class="collapse {{ request()->routeIs('requisitions.*') ? 'show' : '' }}"
+        id="sidebarRequisitions">
+        <ul class="nav flex-column">
+            @canAccess('create-requisitions')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('requisitions.add-new') ? 'active' : '' }}"
+                    href="{{ route('requisitions.add-new') }}">Add New</a>
+            </li>
+            @endcanAccess
 
-                    <!-- Material Requisitions -->
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('requisitions.*') ? '' : 'collapsed' }}"
-                            href="#sidebarRequisitions" data-bs-toggle="collapse" role="button"
-                            aria-expanded="{{ request()->routeIs('requisitions.*') ? 'true' : 'false' }}"
-                            aria-controls="sidebarRequisitions">
-                            <i class="las la-tasks menu-icon"></i>
-                            <span>Material Requisitions</span>
-                        </a>
-                        <div class="collapse {{ request()->routeIs('requisitions.*') ? 'show' : '' }}"
-                            id="sidebarRequisitions">
-                            <ul class="nav flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('requisitions.add-new') ? 'active' : '' }}"
-                                        href="{{ route('requisitions.add-new') }}">Add New</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('requisitions.index') ? 'active' : '' }}"
-                                        href="{{ route('requisitions.index') }}">Saved Requisitions</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
+            @canAccess('view-requisitions')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('requisitions.index') ? 'active' : '' }}"
+                    href="{{ route('requisitions.index') }}">Saved Requisitions</a>
+            </li>
+            @endcanAccess
+        </ul>
+    </div>
+</li>
+@endcanAccess
 
-                    <!-- LPO -->
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('lpos.*') ? '' : 'collapsed' }}" href="#sidebarLpos"
-                            data-bs-toggle="collapse" role="button"
-                            aria-expanded="{{ request()->routeIs('lpos.*') ? 'true' : 'false' }}"
-                            aria-controls="sidebarLpos">
-                            <i class="las la-file-invoice-dollar menu-icon"></i>
-                            <span>Local Purchase Orders</span>
-                        </a>
-                        <div class="collapse {{ request()->routeIs('lpos.*') ? 'show' : '' }}" id="sidebarLpos">
-                            <ul class="nav flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('lpos.create') ? 'active' : '' }}"
-                                        href="{{ route('lpos.create') }}">Add New</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('lpos.index') ? 'active' : '' }}"
-                                        href="{{ route('lpos.index') }}">Saved LPOs</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
+{{-- Local Purchase Orders --}}
+@canAccess('view-lpos')
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('lpos.*') ? '' : 'collapsed' }}" href="#sidebarLpos"
+        data-bs-toggle="collapse" role="button"
+        aria-expanded="{{ request()->routeIs('lpos.*') ? 'true' : 'false' }}"
+        aria-controls="sidebarLpos">
+        <i class="las la-file-invoice-dollar menu-icon"></i>
+        <span>Local Purchase Orders</span>
+    </a>
+    <div class="collapse {{ request()->routeIs('lpos.*') ? 'show' : '' }}" id="sidebarLpos">
+        <ul class="nav flex-column">
+            @canAccess('create-lpos')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('lpos.create') ? 'active' : '' }}"
+                    href="{{ route('lpos.create') }}">Add New</a>
+            </li>
+            @endcanAccess
 
-                    <!-- GRN -->
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('grns.*') ? '' : 'collapsed' }}" href="#sidebarGrns"
-                            data-bs-toggle="collapse" role="button"
-                            aria-expanded="{{ request()->routeIs('grns.*') ? 'true' : 'false' }}"
-                            aria-controls="sidebarGrns">
-                            <i class="las la-clipboard-check menu-icon"></i>
-                            <span>GRNs</span>
-                        </a>
-                        <div class="collapse {{ request()->routeIs('grns.*') ? 'show' : '' }}" id="sidebarGrns">
-                            <ul class="nav flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('grns.create') ? 'active' : '' }}"
-                                        href="{{ route('grns.create') }}">Add New</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('grns.index') ? 'active' : '' }}"
-                                        href="{{ route('grns.index') }}">All GRNs</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
+            @canAccess('view-lpos')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('lpos.index') ? 'active' : '' }}"
+                    href="{{ route('lpos.index') }}">Saved LPOs</a>
+            </li>
+            @endcanAccess
+        </ul>
+    </div>
+</li>
+@endcanAccess
 
-                    <!-- SIF -->
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('sifs.*') ? '' : 'collapsed' }}" href="#sidebarSifs"
-                            data-bs-toggle="collapse" role="button"
-                            aria-expanded="{{ request()->routeIs('sifs.*') ? 'true' : 'false' }}"
-                            aria-controls="sidebarSifs">
-                            <i class="las la-dolly menu-icon"></i>
-                            <span>Stock Issuance Forms</span>
-                        </a>
-                        <div class="collapse {{ request()->routeIs('sifs.*') ? 'show' : '' }}" id="sidebarSifs">
-                            <ul class="nav flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('sifs.add-new') ? 'active' : '' }}"
-                                        href="{{ route('sifs.add-new') }}">Add New</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('sifs.index') ? 'active' : '' }}"
-                                        href="{{ route('sifs.index') }}">Saved SIFs</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <!-- Work Orders -->
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('workorders.*') ? '' : 'collapsed' }}"
-                            href="#sidebarWorkOrders" data-bs-toggle="collapse" role="button"
-                            aria-expanded="{{ request()->routeIs('workorders.*') ? 'true' : 'false' }}"
-                            aria-controls="sidebarWorkOrders">
-                            <i class="las la-briefcase menu-icon"></i>
-                            <span>Work Orders</span>
-                        </a>
-                        <div class="collapse {{ request()->routeIs('workorders.*') ? 'show' : '' }}"
-                            id="sidebarWorkOrders">
-                            <ul class="nav flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('workorders.create') ? 'active' : '' }}"
-                                        href="{{ route('workorders.create') }}">Add New</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('workorders.index') ? 'active' : '' }}"
-                                        href="{{ route('workorders.index') }}">Saved Work Orders</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
+{{-- GRNs --}}
+@canAccess('view-grns')
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('grns.*') ? '' : 'collapsed' }}" href="#sidebarGrns"
+        data-bs-toggle="collapse" role="button"
+        aria-expanded="{{ request()->routeIs('grns.*') ? 'true' : 'false' }}"
+        aria-controls="sidebarGrns">
+        <i class="las la-clipboard-check menu-icon"></i>
+        <span>GRNs</span>
+    </a>
+    <div class="collapse {{ request()->routeIs('grns.*') ? 'show' : '' }}" id="sidebarGrns">
+        <ul class="nav flex-column">
+            @canAccess('create-grns')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('grns.create') ? 'active' : '' }}"
+                    href="{{ route('grns.create') }}">Add New</a>
+            </li>
+            @endcanAccess
 
+            @canAccess('view-grns')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('grns.index') ? 'active' : '' }}"
+                    href="{{ route('grns.index') }}">All GRNs</a>
+            </li>
+            @endcanAccess
+        </ul>
+    </div>
+</li>
+@endcanAccess
+
+{{-- Stock Issuance Forms --}}
+@canAccess('view-sifs')
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('sifs.*') ? '' : 'collapsed' }}" href="#sidebarSifs"
+        data-bs-toggle="collapse" role="button"
+        aria-expanded="{{ request()->routeIs('sifs.*') ? 'true' : 'false' }}"
+        aria-controls="sidebarSifs">
+        <i class="las la-dolly menu-icon"></i>
+        <span>Stock Issuance Forms</span>
+    </a>
+    <div class="collapse {{ request()->routeIs('sifs.*') ? 'show' : '' }}" id="sidebarSifs">
+        <ul class="nav flex-column">
+            @canAccess('create-sifs')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('sifs.add-new') ? 'active' : '' }}"
+                    href="{{ route('sifs.add-new') }}">Add New</a>
+            </li>
+            @endcanAccess
+
+            @canAccess('view-sifs')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('sifs.index') ? 'active' : '' }}"
+                    href="{{ route('sifs.index') }}">Saved SIFs</a>
+            </li>
+            @endcanAccess
+        </ul>
+    </div>
+</li>
+@endcanAccess
+
+{{-- Work Orders --}}
+@canAccess('view-workorders')
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('workorders.*') ? '' : 'collapsed' }}"
+        href="#sidebarWorkOrders" data-bs-toggle="collapse" role="button"
+        aria-expanded="{{ request()->routeIs('workorders.*') ? 'true' : 'false' }}"
+        aria-controls="sidebarWorkOrders">
+        <i class="las la-briefcase menu-icon"></i>
+        <span>Work Orders</span>
+    </a>
+    <div class="collapse {{ request()->routeIs('workorders.*') ? 'show' : '' }}"
+        id="sidebarWorkOrders">
+        <ul class="nav flex-column">
+            @canAccess('create-workorders')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('workorders.create') ? 'active' : '' }}"
+                    href="{{ route('workorders.create') }}">Add New</a>
+            </li>
+            @endcanAccess
+
+            @canAccess('view-workorders')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('workorders.index') ? 'active' : '' }}"
+                    href="{{ route('workorders.index') }}">Saved Work Orders</a>
+            </li>
+            @endcanAccess
+        </ul>
+    </div>
+</li>
+@endcanAccess
+
+{{-- Quotations --}}
+@canAccess('view-quotations')
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('quotations.*') ? '' : 'collapsed' }}"
+        href="#sidebarQuotations" data-bs-toggle="collapse" role="button"
+        aria-expanded="{{ request()->routeIs('quotations.*') ? 'true' : 'false' }}"
+        aria-controls="sidebarQuotations">
+        <i class="las la-file-invoice-dollar menu-icon"></i>
+        <span>Quotations</span>
+    </a>
+    <div class="collapse {{ request()->routeIs('quotations.*') ? 'show' : '' }}" id="sidebarQuotations">
+        <ul class="nav flex-column">
+            @canAccess('create-quotations')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('quotations.create') ? 'active' : '' }}"
+                    href="{{ route('quotations.create') }}">Add New</a>
+            </li>
+            @endcanAccess
+
+            @canAccess('view-quotations')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('quotations.index') ? 'active' : '' }}"
+                    href="{{ route('quotations.index') }}">Saved Quotations</a>
+            </li>
+            @endcanAccess
+        </ul>
+    </div>
+</li>
+@endcanAccess
+
+                    
 
 
 

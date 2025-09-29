@@ -17,10 +17,12 @@
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="{{asset('assets/css/rolestyle.css')}}">
+
 
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    
+
     <!-- jQuery UI CSS (Optional) -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 </head>
@@ -58,10 +60,11 @@
     <script src="{{ asset('assets/js/app.js') }}"></script>
 
     <!-- DataTables JS -->
-    
+
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     @yield('scripts')
 </body>
+
 </html>

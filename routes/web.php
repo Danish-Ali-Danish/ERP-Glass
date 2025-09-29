@@ -11,6 +11,7 @@ use App\Http\Controllers\LpoController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\GrnController;
 use App\Http\Controllers\SifController;
+use App\Http\Controllers\QuotationController;
 
 
 
@@ -70,3 +71,14 @@ Route::prefix('workorders')->name('workorders.')->group(function () {
     Route::delete('/{workorder}', [WorkOrderController::class, 'destroy'])->name('destroy'); // delete record
 });
 Route::get('/workorders/{id}/preview', [WorkOrderController::class, 'preview'])->name('workorders.preview');
+
+// Quotations Routes
+Route::prefix('quotations')->name('quotations.')->group(function () {
+    Route::get('/', [QuotationController::class, 'index'])->name('index');
+    Route::get('/create', [QuotationController::class, 'create'])->name('create');
+    Route::post('/', [QuotationController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [QuotationController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [QuotationController::class, 'update'])->name('update');
+    Route::delete('/{id}', [QuotationController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}', [QuotationController::class, 'show'])->name('show'); // for preview JSON
+});

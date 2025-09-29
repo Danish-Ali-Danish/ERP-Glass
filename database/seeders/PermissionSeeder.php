@@ -9,20 +9,37 @@ class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        $permissions = [
-            ['name' => 'view-dashboard', 'group' => 'Dashboard', 'display_name' => 'View Dashboard'],
-            ['name' => 'view-users', 'group' => 'Users', 'display_name' => 'View Users'],
-            ['name' => 'create-users', 'group' => 'Users', 'display_name' => 'Create Users'],
-            ['name' => 'edit-users', 'group' => 'Users', 'display_name' => 'Edit Users'],
-            ['name' => 'delete-users', 'group' => 'Users', 'display_name' => 'Delete Users'],
-
-            ['name' => 'view-roles', 'group' => 'Roles', 'display_name' => 'View Roles'],
-            ['name' => 'view-products', 'group' => 'Products', 'display_name' => 'View Products'],
-            ['name' => 'view-orders', 'group' => 'Orders', 'display_name' => 'View Orders'],
+        // Sidebar ke modules
+        $modules = [
+            'dashboard'    => 'Dashboard',
+            'departments'  => 'Departments',
+            'items'        => 'Items',
+            'requisitions' => 'Material Requisitions',
+            'lpos'         => 'Local Purchase Orders',
+            'grns'         => 'GRNs',
+            'sifs'         => 'Stock Issuance Forms',
+            'workorders'   => 'Work Orders',
+            'quotations'   => 'Quotations',
         ];
 
-        foreach ($permissions as $perm) {
-            Permission::firstOrCreate(['name' => $perm['name']], $perm);
+        // Har module k liye CRUD
+        foreach ($modules as $key => $group) {
+            $actions = [
+                'view'   => 'View',
+                'create' => 'Create',
+                'edit'   => 'Edit',
+                'delete' => 'Delete',
+            ];
+
+            foreach ($actions as $action => $label) {
+                Permission::firstOrCreate(
+                    ['name' => $action . '-' . $key],
+                    [
+                        'group'        => $group,
+                        'display_name' => $label . ' ' . $group,
+                    ]
+                );
+            }
         }
     }
 }

@@ -1,0 +1,128 @@
+/* Permission Group (gray/light background container) */
+.permission-group {
+
+    border-radius: 8px;
+  
+  
+    transition: all 0.3s ease;
+}
+
+/* Permission Item (individual white box with hover effect) */
+.permission-item {
+    
+    border: 1px solid ;
+    border-radius: 6px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+
+.permission-checkbox {
+    margin-right: 0.5rem;
+}
+
+/* Permissions grid layout */
+.permission-list-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columns by default */
+    gap: 0.75rem;
+}
+
+/* Empty state */
+.permission-view-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 16rem;
+    color: #9ca3af;
+    text-align: center;
+}
+.btn-link {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Permission badge (for extra highlights if needed) */
+.permission-badge {
+
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+/* Group Header */
+.group-header {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+/* Role Cards */
+.role-card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.role-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.role-card.selected {
+    border-color: #0d6efd !important;
+}
+
+/* Fade In Animation */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Notification popup (top-right fixed) */
+.notification {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1055;
+    min-width: 300px;
+}
+
+/* Mobile Modal */
+.mobile-modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Responsive behavior */
+@media (max-width: 1023px) {
+    .desktop-permissions {
+        display: none;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-permissions-modal {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .permission-list-grid {
+        grid-template-columns: 1fr; /* single column on mobile */
+    }
+}
+
+/* Utility Classes */
+.text-success-custom {
+    color: #198754 !important;
+}
+
+.bg-light-custom {
+    background-color: #f8f9fa !important;
+}

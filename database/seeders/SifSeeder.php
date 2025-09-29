@@ -10,8 +10,8 @@ class SifSeeder extends Seeder
 {
     public function run(): void
     {
-        $chunkSize = 1000; // ek batch mein
-        $total = 100000;   // 1 lakh records
+        $chunkSize = 100; // ek batch mein
+        $total = 100;   // 1 lakh records
 
         for ($i = 0; $i < $total / $chunkSize; $i++) {
             $sifs = Sif::factory()->count($chunkSize)->create();
