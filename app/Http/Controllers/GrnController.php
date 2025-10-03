@@ -11,6 +11,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class GrnController extends Controller
 {
+   
     // List all GRNs
     public function index(Request $request)
     {

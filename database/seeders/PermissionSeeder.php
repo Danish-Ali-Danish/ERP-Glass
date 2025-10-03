@@ -9,7 +9,6 @@ class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Sidebar ke modules
         $modules = [
             'dashboard'    => 'Dashboard',
             'departments'  => 'Departments',
@@ -20,17 +19,20 @@ class PermissionSeeder extends Seeder
             'sifs'         => 'Stock Issuance Forms',
             'workorders'   => 'Work Orders',
             'quotations'   => 'Quotations',
+            'users'        => 'Users',
+            'roles'        => 'Roles',
+            'permissions'  => 'Permissions',
+            'user-roles'  => 'User Roles',
         ];
 
-        // Har module k liye CRUD
-        foreach ($modules as $key => $group) {
-            $actions = [
-                'view'   => 'View',
-                'create' => 'Create',
-                'edit'   => 'Edit',
-                'delete' => 'Delete',
-            ];
+        $actions = [
+            'view'   => 'View',
+            'create' => 'Create',
+            'edit'   => 'Edit',
+            'delete' => 'Delete',
+        ];
 
+        foreach ($modules as $key => $group) {
             foreach ($actions as $action => $label) {
                 Permission::firstOrCreate(
                     ['name' => $action . '-' . $key],

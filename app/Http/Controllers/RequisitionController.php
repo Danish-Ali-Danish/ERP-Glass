@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 
 class RequisitionController extends Controller
 {
+    
     // Show Add New form
     public function create()
     {

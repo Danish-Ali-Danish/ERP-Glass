@@ -10,6 +10,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class QuotationController extends Controller
 {
+   
     // Show Create Quotation Form
     public function create()
     {

@@ -9,6 +9,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class WorkOrderController extends Controller
 {
+    
     // Show all Work Orders (DataTables)
     public function index(Request $request)
     {

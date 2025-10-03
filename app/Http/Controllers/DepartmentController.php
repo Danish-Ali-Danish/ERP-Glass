@@ -8,6 +8,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class DepartmentController extends Controller
 {
+    
     /**
      * Display a listing of departments.
      */

@@ -2,110 +2,251 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\PermissionRouter;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
     /**
-     * Show roles with permissions.
+     * Display roles management page
      */
-    
-    public function index(Request $request)
+    public function index()
     {
-        // Get roles with permissions
-        $roles = Role::with('permissions')->get();
 
-        // Roles array for JS
-        $rolesArray = $roles->map(function ($role) {
-            return [
-                'id' => $role->id,
-                'name' => $role->name,
-                'permissions' => $role->permissions->pluck('id')->toArray(),
-            ];
-        });
+        try {
+            // Test basic data loading
+            Log::info('RoleController index method called');
+            
+            $roles = Role::with(['users', 'permissions'])->get();
+            Log::info('Roles loaded: ' . $roles->count());
+            
+            $allUsers = User::all();
+            Log::info('Users loaded: ' . $allUsers->count());
+            
+            $permissions = Permission::all();
+            Log::info('Permissions loaded: ' . $permissions->count());
 
-        // Group permissions
-        $permissions = Permission::all()->groupBy('group');
-        $permissionGroups = $permissions->map(function ($group, $name) {
-            return [
-                'name' => $name,
-                'permissions' => $group->map(fn($p) => [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                ])->toArray(),
-            ];
-        })->values();
+            // Transform roles for JS
+            $rolesArray = $roles->map(function ($role) {
+                return [
+                    'id'          => $role->id,
+                    'name'        => $role->name,
+                    'permissions' => $role->permissions->pluck('id')->toArray(),
+                ];
+            });
 
-        return view('roles.index', [
-            'roles' => $roles,
-            'rolesArray' => $rolesArray,
-            'permissionGroups' => $permissionGroups,
-        ]);
+            // Group permissions by 'group' column
+            $permissionGroups = $permissions->groupBy('group')->map(function ($items, $key) {
+                return [
+                    'name'        => $key,
+                    'permissions' => $items->map(fn($perm) => [
+                        'id'   => $perm->id,
+                        'name' => $perm->name,
+                    ])->toArray(),
+                ];
+            })->values()->toArray();
+
+            Log::info('Data processed successfully');
+
+            // Remove permissionRouters if you're not using it
+            return view('roles.index', compact('roles', 'allUsers', 'permissionGroups', 'rolesArray'));
+
+        } catch (\Exception $e) {
+            Log::error('Error in RoleController: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return response()->view('errors.500', [], 500);
+        }
     }
 
     /**
-     * Store new role.
+     * Show the form for creating a new role
+     */
+    public function create()
+    {
+        $permissions = Permission::all();
+        return view('roles.create', compact('permissions'));
+    }
+
+    /**
+     * Store a newly created role
      */
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:roles,name',
+            'name' => 'required|string|max:255|unique:roles,name',
             'permissions' => 'array',
+            'permissions.*' => 'exists:permissions,id'
         ]);
 
-        $role = Role::create(['name' => $request->name]);
-        $role->permissions()->sync($request->permissions ?? []);
+        DB::transaction(function () use ($request) {
+            $role = Role::create([
+                'name' => $request->name
+            ]);
 
-        return $this->respondSuccess($request, 'Role created successfully.', $role);
+            if ($request->has('permissions')) {
+                $role->permissions()->sync($request->permissions);
+            }
+        });
+
+        return redirect()->route('roles.index')
+            ->with('success', 'Role created successfully.');
     }
 
     /**
-     * Update role.
+     * Display the specified role
+     */
+    public function show(Role $role)
+    {
+        $role->load(['users', 'permissions']);
+        return view('roles.show', compact('role'));
+    }
+
+    /**
+     * Show the form for editing the role
+     */
+    public function edit(Role $role)
+    {
+        $permissions = Permission::all();
+        $role->load('permissions');
+        
+        return view('roles.edit', compact('role', 'permissions'));
+    }
+
+    /**
+     * Update the specified role
      */
     public function update(Request $request, Role $role)
     {
         $request->validate([
-            'name' => 'required|unique:roles,name,' . $role->id,
+            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
             'permissions' => 'array',
+            'permissions.*' => 'exists:permissions,id'
         ]);
 
-        $role->update(['name' => $request->name]);
-        $role->permissions()->sync($request->permissions ?? []);
+        DB::transaction(function () use ($request, $role) {
+            $role->update([
+                'name' => $request->name
+            ]);
 
-        return $this->respondSuccess($request, 'Role updated successfully.', $role);
+            if ($request->has('permissions')) {
+                $role->permissions()->sync($request->permissions);
+            } else {
+                $role->permissions()->detach();
+            }
+        });
+
+        return redirect()->route('roles.index')
+            ->with('success', 'Role updated successfully.');
     }
 
     /**
-     * Delete role.
+     * Remove the specified role
      */
-    public function destroy(Request $request, Role $role)
+    public function destroy(Role $role)
     {
-        try {
+        DB::transaction(function () use ($role) {
+            $role->permissions()->detach();
             $role->delete();
-            return $this->respondSuccess($request, 'Role deleted successfully.');
-        } catch (\Exception $e) {
-            return $this->respondFail($request, 'Unable to delete role. It may be in use.');
-        }
+        });
+
+        return redirect()->route('roles.index')
+            ->with('success', 'Role deleted successfully.');
     }
 
     /**
-     * Helpers
+     * Assign users to role
      */
-    protected function respondSuccess(Request $request, $message, $data = null)
+    public function assignUsers(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['status' => 'ok', 'message' => $message, 'data' => $data]);
-        }
-        return redirect()->back()->with('success', $message);
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id'
+        ]);
+
+        $role = Role::findOrFail($request->role_id);
+        $role->users()->syncWithoutDetaching($request->user_ids);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Users assigned to role successfully.'
+        ]);
     }
 
-    protected function respondFail(Request $request, $message, $status = 422)
+    /**
+     * Assign role to users (replace existing roles)
+     */
+    public function assignRoleToUser(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['status' => 'error', 'message' => $message], $status);
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id'
+        ]);
+
+        $role = Role::findOrFail($request->role_id);
+
+        foreach ($request->user_ids as $userId) {
+            $user = User::findOrFail($userId);
+            $user->roles()->sync([$role->id]);
         }
-        return redirect()->back()->with('error', $message);
+
+        return redirect()->back()
+            ->with('success', 'Role assigned to users successfully.');
+    }
+
+    /**
+     * Remove user from role
+     */
+    public function removeUserFromRole(Request $request)
+    {
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+            'user_id' => 'required|exists:users,id'
+        ]);
+
+        $role = Role::findOrFail($request->role_id);
+        $role->users()->detach($request->user_id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User removed from role successfully.'
+        ]);
+    }
+
+    /**
+     * Get role permissions
+     */
+    public function getRolePermissions(Role $role)
+    {
+        $permissions = $role->permissions;
+        
+        return response()->json([
+            'permissions' => $permissions
+        ]);
+    }
+
+    /**
+     * Update role permissions
+     */
+    public function updateRolePermissions(Request $request, Role $role)
+    {
+        $request->validate([
+            'permissions' => 'array',
+            'permissions.*' => 'exists:permissions,id'
+        ]);
+
+        $role->permissions()->sync($request->permissions);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role permissions updated successfully.'
+        ]);
     }
 }

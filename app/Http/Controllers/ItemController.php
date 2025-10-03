@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 class ItemController extends Controller
 {
+   
     // Display items or handle DataTables AJAX
     public function index(Request $request)
     {
+        
         if ($request->ajax()) {
             $query = Item::select('id', 'item_code', 'description', 'uom', 'remarks')->latest();
             return DataTables::of($query)

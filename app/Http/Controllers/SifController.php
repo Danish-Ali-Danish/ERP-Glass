@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 
 class SifController extends Controller
 {
+   
     // Show Add New SIF form
     public function create()
     {

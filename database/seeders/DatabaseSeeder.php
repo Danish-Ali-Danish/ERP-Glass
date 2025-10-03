@@ -9,14 +9,18 @@ class DatabaseSeeder extends Seeder
     {
 
         $this->call([
-            DefaultGMUserSeeder::class,
             DepartmentSeeder::class,
             RequisitionSeeder::class,
             LpoSeeder::class,
             SifSeeder::class,
             PermissionSeeder::class,
             RoleSeeder::class,
-            UserSeeder::class,
+            RoleUserSeeder::class,
+            PermissionRoleSeeder::class,
+            UsersTableSeeder::class,
+            RolePermissionSeeder::class,
+            PermissionRoleSeeder::class,
+            PermissionRouterSeeder::class,
         ]);
     }
 }

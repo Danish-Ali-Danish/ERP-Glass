@@ -11,6 +11,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class LpoController extends Controller
 {
+    
     // Show all LPOs (DataTables)
     public function index(Request $request)
     {
