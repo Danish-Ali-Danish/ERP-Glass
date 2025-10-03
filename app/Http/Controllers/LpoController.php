@@ -19,19 +19,30 @@ class LpoController extends Controller
             $data = Lpo::select(['id','supplier_name','contact_person','pi_no','supplier_trn','lpo_no']);
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('action', function($row){
-                    return '
-                        <a class="text-secondary fs-18 viewBtn" data-id="'.$row->id.'">
-                            <i class="las la-eye"></i>
-                        </a>
-                        <a class="text-secondary fs-18 editBtn" data-id="'.$row->id.'">
-                            <i class="las la-pen"></i>
-                        </a>
-                        <a class="text-secondary fs-18 deleteBtn" data-id="'.$row->id.'">
-                            <i class="las la-trash-alt"></i>
-                        </a>
-                    ';
-                })
+               ->addColumn('action', function($row){
+    $buttons = '';
+
+    
+        $buttons .= '<a class="text-secondary fs-18 viewBtn" data-id="'.$row->id.'">
+                        <i class="las la-eye"></i>
+                    </a>';
+   
+
+    if (hasPermission('lpos.edit')) {
+        $buttons .= '<a class="text-secondary fs-18 editBtn" data-id="'.$row->id.'">
+                        <i class="las la-pen"></i>
+                    </a>';
+    }
+
+    if (hasPermission('lpos.destroy')) {
+        $buttons .= '<a class="text-secondary fs-18 deleteBtn" data-id="'.$row->id.'">
+                        <i class="las la-trash-alt"></i>
+                    </a>';
+    }
+
+    return $buttons;
+})
+
                 ->rawColumns(['action'])
                 ->make(true);
         }

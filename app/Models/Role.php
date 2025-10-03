@@ -13,11 +13,11 @@ class Role extends Model
     /**
      * The users that belong to the role.
      */
+
+// Role.php
     public function users()
     {
-        return $this->belongsToMany(User::class, 'role_user', 'role_id', 'user_id')
-            ->withPivot('status')
-            ->withTimestamps();
+        return $this->hasMany(User::class, 'role_id');
     }
 
     /**

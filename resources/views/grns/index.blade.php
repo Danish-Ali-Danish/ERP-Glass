@@ -16,8 +16,20 @@
         </div>
     </div>
 
+
     <!-- GRNs Table -->
     <div class="card shadow-sm">
+        
+    <!-- Add New GRN Button -->
+    @if(hasPermission('grns.create'))
+    <div class="row m-3">
+        <div class="col-12">
+            <a href="{{ route('grns.create') }}" class="btn btn-primary">
+                <i class="las la-plus-circle"></i> Add New GRN
+            </a>
+        </div>
+    </div>
+    @endif
         <div class="card-body">
             <table class="table table-bordered table-striped" id="grnTable">
                 <thead>
@@ -30,7 +42,11 @@
                         <th>Requested By</th>
                         <th>Department</th>
                         <th>Project Name</th>
-                        <th class="text-center">Actions</th>
+                        <th class="text-center">
+                         @if(hasPermission('grns.show')||hasPermission('grns.edit')||hasPermission('grns.delete'))
+                            Actions
+                            @endif
+                        </th>
                     </tr>
                 </thead>
                 <tbody></tbody>

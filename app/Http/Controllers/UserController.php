@@ -4,25 +4,25 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Yajra\DataTables\DataTables;
 
 class UserController extends Controller
 {
-  public function search(Request $request)
-{
-    $q = $request->get('q');
+    public function search(Request $request)
+    {
+        $q = $request->get('q');
 
-    $users = User::query()
-        ->when($q, fn($query) =>
-            $query->where('name', 'like', "%{$q}%")
-                  ->orWhere('email', 'like', "%{$q}%")
-        )
-        ->select('id', 'name', 'email')
-        ->limit(10)
-        ->get();
+        $users = User::query()
+            ->when($q, fn($query) =>
+                $query->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+            )
+            ->select('id', 'name', 'email')
+            ->limit(10)
+            ->get();
 
-    return response()->json($users); // ✅ JSON only
-}
-
+        return response()->json($users); // ✅ JSON only
+    }
 
     /**
      * Display listing of users with DataTable.
@@ -34,6 +34,7 @@ class UserController extends Controller
 
             return datatables()->of($users)
                 ->addIndexColumn()
+
                 ->addColumn('image', function ($row) {
                     $url = $row->image
                         ? asset('uploads/users/' . $row->image)
@@ -45,12 +46,23 @@ class UserController extends Controller
                              style="cursor:pointer">';
                 })
                 ->addColumn('action', function ($row) {
-                    return '
-                        <a class="las la-pen text-secondary fs-18 editUser" data-id="' . $row->id . '" title="Edit"></a>
-                        <a class="las la-trash text-secondary fs-18 deleteUser" data-id="' . $row->id . '" title="Delete"></a>
-                        <a class="las la-key text-secondary fs-18 resetPassword" data-id="' . $row->id . '" title="Reset Password"></a>
-                    ';
-                })
+    $buttons = '';
+
+    if (hasPermission('users.edit')) {
+        $buttons .= '<a class=" text-secondary fs-18 editUser" data-id="' . $row->id . '" title="Edit"><i class="las la-pen"></i></a>';
+    }
+
+    if (hasPermission('users.destroy')) {
+        $buttons .= '<a class="text-secondary fs-18 deleteUser p-1" data-id="' . $row->id . '" title="Delete"><i class="las la-trash "></i></a>';
+    }
+
+    if (hasPermission('users.reset-password')) {
+        $buttons .= '<a class="text-secondary fs-18 resetPassword " data-id="' . $row->id . '" title="Reset Password"><i class="las la-key"></i></a>';
+    }
+
+    return $buttons;
+})
+
                 ->rawColumns(['image', 'action'])
                 ->make(true);
         }
@@ -67,9 +79,9 @@ class UserController extends Controller
             'name'     => 'required|string',
             'email'    => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'phone'    => 'nullable',
-            'address'  => 'nullable',
-            'image'    => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+            'phone'    => 'required|numeric',
+            'address'  => 'required|string',
+            'image'    => 'required|image|mimes:jpg,png,jpeg|max:2048',
         ]);
 
         $imageName = null;
@@ -104,9 +116,11 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name'  => 'required|string',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+            'name'    => 'required|string',
+            'email'   => 'required|email|unique:users,email,' . $user->id,
+            'phone'   => 'required|numeric',
+            'address' => 'required|string',
+            'image'   => 'required|image|mimes:jpg,png,jpeg|max:2048',
         ]);
 
         // handle image upload
@@ -158,3 +172,4 @@ class UserController extends Controller
         return response()->json(['success' => 'Password reset successfully.']);
     }
 }
+

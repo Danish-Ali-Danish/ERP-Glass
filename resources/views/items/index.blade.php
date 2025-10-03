@@ -13,22 +13,26 @@
                     </ol>
                 </div>
             </div>
-        </div>  
+        </div>
     </div>
 
     <!-- DataTable -->
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card">
-               <div class="d-flex justify-content-between align-items-center m-3">
+                <div class="d-flex justify-content-between align-items-center m-3">
                     <div class="card-header p-0 border-0 bg-transparent">
                         <h4 class="card-title mb-0">Items Inventory</h4>
                     </div>
+
                     <div>
+                        @if(hasPermission('items.create'))
                         <button class="btn btn-primary" id="openItemModal">
                             <i class="fas fa-plus me-1"></i> Add Item
                         </button>
+                        @endif
                     </div>
+
                 </div>
 
                 <div class="card-body">
@@ -40,7 +44,11 @@
                                 <th>Description</th>
                                 <th>UOM</th>
                                 <th>Remarks</th>
-                                <th class="text-center">Action</th>
+                                <th class="text-center">
+                                    @if(hasPermission('items.edit') || hasPermission('items.destroy'))
+                                    Action
+                                @endif
+                                </th>
                             </tr>
                         </thead>
                     </table>
@@ -53,53 +61,53 @@
 <!-- Item Modal -->
 <!-- Item Modal -->
 <div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Add Item</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <form id="itemForm">
-            <input type="hidden" id="itemId">
-            <div class="mb-3">
-                <label class="form-label">Item Code</label>
-                <input type="text" class="form-control" id="itemCode" readonly />
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Description</label>
-                <input type="text" class="form-control" id="description" required />
+            <div class="modal-body">
+                <form id="itemForm">
+                    <input type="hidden" id="itemId">
+                    <div class="mb-3">
+                        <label class="form-label">Item Code</label>
+                        <input type="text" class="form-control" id="itemCode" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control" id="description" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">UOM</label>
+                        <select class="form-select" id="uom" required>
+                            <option value="">-- Select UOM --</option>
+                            <option value="NOS">NOS</option>
+                            <option value="SET">SET</option>
+                            <option value="PCS">PCS</option>
+                            <option value="PKT">PKT</option>
+                            <option value="SQM">SQM</option>
+                            <option value="PAIR">PAIR</option>
+                            <option value="KG">KG</option>
+                            <option value="MTR">MTR</option>
+                            <option value="LTR">LTR</option>
+                            <option value="LM">LM</option>
+                            <option value="BOX">BOX</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Remarks</label>
+                        <input type="text" class="form-control" id="remarks" />
+                    </div>
+                </form>
             </div>
-            <div class="mb-3">
-                <label class="form-label">UOM</label>
-                <select class="form-select" id="uom" required>
-                    <option value="">-- Select UOM --</option>
-                    <option value="NOS">NOS</option>
-                    <option value="SET">SET</option>
-                    <option value="PCS">PCS</option>
-                    <option value="PKT">PKT</option>
-                    <option value="SQM">SQM</option>
-                    <option value="PAIR">PAIR</option>
-                    <option value="KG">KG</option>
-                    <option value="MTR">MTR</option>
-                    <option value="LTR">LTR</option>
-                    <option value="LM">LM</option>
-                    <option value="BOX">BOX</option>
-                </select>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success d-none" id="updateItemBtn">Update</button>
+                <button type="button" class="btn btn-dark" id="addItemBtn">Save</button>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Remarks</label>
-                <input type="text" class="form-control" id="remarks" />
-            </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success d-none" id="updateItemBtn">Update</button>
-        <button type="button" class="btn btn-dark" id="addItemBtn">Save</button>
-      </div>
+        </div>
     </div>
-  </div>
 </div>
 @endsection
 
@@ -112,7 +120,7 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-$(function () {
+    $(function () {
     $.ajaxSetup({
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
     });
@@ -128,12 +136,17 @@ $(function () {
             { data: 'uom', name: 'uom' },
             { data: 'remarks', name: 'remarks' },
             { data: 'id', orderable: false, searchable: false, className: 'text-center',
-                render: function (data) {
-                    return `
-                        <a class="las la-pen text-secondary fs-18 editBtn" data-id="${data}"></a>
-                        <a class="las la-trash-alt text-secondary fs-18 deleteBtn" data-id="${data}"></a>
-                    `;
-                }
+               render: function (data) {
+    return `
+        @if(hasPermission('items.edit'))
+        <a class="las la-pen text-secondary fs-18 editBtn" data-id="${data}"></a>
+        @endif
+        @if(hasPermission('items.destroy'))
+        <a class="las la-trash-alt text-secondary fs-18 deleteBtn" data-id="${data}"></a>
+        @endif
+    `;
+}
+
             }
         ]
     });
@@ -249,4 +262,3 @@ $(function () {
 });
 </script>
 @endsection
-    

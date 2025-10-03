@@ -1,54 +1,118 @@
 <?php
+
 namespace Database\Seeders;
 
-use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Database\Seeder;
+use App\Models\Role;
+use App\Models\Permission;
+use Illuminate\Support\Facades\DB;
 
 class RolePermissionSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        // GM -> all permissions
-        $gm = Role::where('name', 'GM')->first();
-        $gm->permissions()->sync(Permission::pluck('id')->toArray());
+        // Roles ko fetch karna
+        $gm         = Role::where('name', 'GM')->first();
+        $accounts   = Role::where('name', 'Accounts')->first();
+        $sales      = Role::where('name', 'Sales')->first();
+        $production = Role::where('name', 'Production')->first();
+        $stores     = Role::where('name', 'Stores')->first();
+        $estimation = Role::where('name', 'Estimation')->first();
 
-        // Sales -> sirf items aur quotations de dete hain
-        $sales            = Role::where('name', 'Sales')->first();
-        $salesPermissions = Permission::whereIn('name', [
-            'view-items', 'create-items',
-            'view-quotations', 'create-quotations',
-        ])->pluck('id')->toArray();
-        $sales->permissions()->sync($salesPermissions);
+        // Saare permissions
+        $allPermissions = Permission::pluck('id')->toArray();
 
-        // Accounts -> sirf LPO aur GRN
-        $accounts            = Role::where('name', 'Accounts')->first();
-        $accountsPermissions = Permission::whereIn('name', [
-            'view-lpos', 'create-lpos',
-            'view-grns', 'create-grns',
-        ])->pluck('id')->toArray();
-        $accounts->permissions()->sync($accountsPermissions);
+        // GM → sab permissions
+        if ($gm) {
+            foreach ($allPermissions as $perm) {
+                DB::table('permission_role')->insertOrIgnore([
+                    'role_id' => $gm->id,
+                    'permission_id' => $perm,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
 
-        // Stores -> requisitions + stock
-        $stores            = Role::where('name', 'Stores')->first();
-        $storesPermissions = Permission::whereIn('name', [
-            'view-requisitions', 'create-requisitions',
-            'view-sifs', 'create-sifs',
-        ])->pluck('id')->toArray();
-        $stores->permissions()->sync($storesPermissions);
+        // Accounts → sirf accounts related permissions + view
+        if ($accounts) {
+            $accountsPermissions = Permission::where('name', 'like', '%accounts%')
+                                            ->orWhere('name', 'like', 'view_%')
+                                            ->pluck('id')->toArray();
 
-        // Production -> workorders
-        $production            = Role::where('name', 'Production')->first();
-        $productionPermissions = Permission::whereIn('name', [
-            'view-workorders', 'create-workorders',
-        ])->pluck('id')->toArray();
-        $production->permissions()->sync($productionPermissions);
+            foreach ($accountsPermissions as $perm) {
+                DB::table('permission_role')->insertOrIgnore([
+                    'role_id' => $accounts->id,
+                    'permission_id' => $perm,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
 
-        // Estimation -> sirf quotations
-        $estimation            = Role::where('name', 'Estimation')->first();
-        $estimationPermissions = Permission::whereIn('name', [
-            'view-quotations', 'create-quotations',
-        ])->pluck('id')->toArray();
-        $estimation->permissions()->sync($estimationPermissions);
+        // Sales → sirf sales related + view
+        if ($sales) {
+            $salesPermissions = Permission::where('name', 'like', '%sales%')
+                                        ->orWhere('name', 'like', 'view_%')
+                                        ->pluck('id')->toArray();
+
+            foreach ($salesPermissions as $perm) {
+                DB::table('permission_role')->insertOrIgnore([
+                    'role_id' => $sales->id,
+                    'permission_id' => $perm,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // Production → production related + view
+        if ($production) {
+            $productionPermissions = Permission::where('name', 'like', '%production%')
+                                            ->orWhere('name', 'like', 'view_%')
+                                            ->pluck('id')->toArray();
+
+            foreach ($productionPermissions as $perm) {
+                DB::table('permission_role')->insertOrIgnore([
+                    'role_id' => $production->id,
+                    'permission_id' => $perm,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // Stores → inventory/stores related + view
+        if ($stores) {
+            $storesPermissions = Permission::where('name', 'like', '%store%')
+                                        ->orWhere('name', 'like', '%inventory%')
+                                        ->orWhere('name', 'like', 'view_%')
+                                        ->pluck('id')->toArray();
+
+            foreach ($storesPermissions as $perm) {
+                DB::table('permission_role')->insertOrIgnore([
+                    'role_id' => $stores->id,
+                    'permission_id' => $perm,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // Estimation → estimation related + view
+        if ($estimation) {
+            $estimationPermissions = Permission::where('name', 'like', '%estimation%')
+                                            ->orWhere('name', 'like', 'view_%')
+                                            ->pluck('id')->toArray();
+
+            foreach ($estimationPermissions as $perm) {
+                DB::table('permission_role')->insertOrIgnore([
+                    'role_id' => $estimation->id,
+                    'permission_id' => $perm,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
     }
 }

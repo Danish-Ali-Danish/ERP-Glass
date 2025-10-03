@@ -18,9 +18,11 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4>All LPOs</h4>
+            @if(hasPermission('lpos.create'))
             <a href="{{ route('lpos.create') }}" class="btn btn-primary">
                 <i class="las la-plus"></i> New LPO
             </a>
+            @endif
         </div>
         <div class="card-body">
             <table class="table datatables" id="lpoTable" width="100%">
@@ -31,7 +33,12 @@
                         <th>Contact Person</th>
                         <th>PI No</th>
                         <th>Supplier TRN</th>
-                        <th class="text-center">Actions</th>
+                        <th class="text-center">
+                            @if(
+                            hasPermission('lpos.edit') || hasPermission('lpos.destroy'))
+                            Actions
+                        @endif
+                        </th>
                     </tr>
                 </thead>
                 <tbody></tbody>

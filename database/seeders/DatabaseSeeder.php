@@ -16,11 +16,12 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RoleSeeder::class,
             RoleUserSeeder::class,
-            PermissionRoleSeeder::class,
             UsersTableSeeder::class,
             RolePermissionSeeder::class,
-            PermissionRoleSeeder::class,
             PermissionRouterSeeder::class,
+            QuotationSeeder::class,
+            QuotationItemSeeder::class,
+            ItemSeeder::class,
         ]);
     }
 }

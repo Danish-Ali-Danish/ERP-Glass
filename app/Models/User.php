@@ -14,6 +14,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'status',
+        'phone',
+        'address',
+        'image',
         'role_id',
     ];
 
@@ -30,28 +35,18 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * User ↔ Roles relation
-     */
-    public function roles()
+    // Single role relation
+    public function role()
     {
-        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')
-            ->withPivot('status')
-            ->withTimestamps();
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
     /**
-     * Roles ↔ Permissions through pivot
-     * (Collection of permissions for this user)
+     * Get user permissions through role
      */
     public function permissions()
     {
-        return $this->roles()
-            ->with('permissions')
-            ->get()
-            ->pluck('permissions')
-            ->flatten()
-            ->unique('id');
+        return $this->role?->permissions ?? collect();
     }
 
     /**
@@ -59,10 +54,15 @@ class User extends Authenticatable
      */
     public function hasRole($role): bool
     {
-        if (is_string($role)) {
-            return $this->roles->contains('name', $role);
+        if (!$this->role) {
+            return false;
         }
-        return $this->roles->contains('id', $role->id);
+
+        if (is_string($role)) {
+            return $this->role->name === $role;
+        }
+
+        return $this->role->id === $role->id;
     }
 
     /**
@@ -70,6 +70,10 @@ class User extends Authenticatable
      */
     public function hasAnyRole($roles): bool
     {
+        if (!$this->role) {
+            return false;
+        }
+
         if (is_array($roles)) {
             foreach ($roles as $role) {
                 if ($this->hasRole($role)) {
@@ -78,6 +82,7 @@ class User extends Authenticatable
             }
             return false;
         }
+
         return $this->hasRole($roles);
     }
 
@@ -89,7 +94,10 @@ class User extends Authenticatable
         if (is_string($role)) {
             $role = Role::where('name', $role)->firstOrFail();
         }
-        return $this->roles()->syncWithoutDetaching([$role->id]);
+        $this->role_id = $role->id;
+        $this->save();
+
+        return $this;
     }
 
     /**
@@ -97,25 +105,36 @@ class User extends Authenticatable
      */
     public function removeRole($role)
     {
-        if (is_string($role)) {
-            $role = Role::where('name', $role)->firstOrFail();
+        if ($this->role && (
+            (is_string($role) && $this->role->name === $role) ||
+            ($this->role->id === $role->id)
+        )) {
+            $this->role_id = null;
+            $this->save();
         }
-        return $this->roles()->detach($role->id);
+
+        return $this;
     }
 
     /**
-     * Replace all user roles with new ones
+     * Replace user role
      */
     public function syncRoles($roles)
     {
-        $roleIds = [];
-        foreach ($roles as $role) {
-            if (is_string($role)) {
-                $role = Role::where('name', $role)->firstOrFail();
-            }
-            $roleIds[] = $role->id;
+        if (is_array($roles)) {
+            $role = is_string($roles[0]) 
+                ? Role::where('name', $roles[0])->firstOrFail()
+                : $roles[0];
+        } else {
+            $role = is_string($roles)
+                ? Role::where('name', $roles)->firstOrFail()
+                : $roles;
         }
-        return $this->roles()->sync($roleIds);
+
+        $this->role_id = $role->id;
+        $this->save();
+
+        return $this;
     }
 
     /**
@@ -123,6 +142,9 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permissionName): bool
     {
+        if (!$this->role) {
+            return false;
+        }
         return $this->permissions()->pluck('name')->contains($permissionName);
     }
 
@@ -132,7 +154,7 @@ class User extends Authenticatable
     public function hasAllPermissions(array $permissions): bool
     {
         foreach ($permissions as $permission) {
-            if (! $this->hasPermission($permission)) {
+            if (!$this->hasPermission($permission)) {
                 return false;
             }
         }
@@ -150,5 +172,20 @@ class User extends Authenticatable
             ->whereIn('permission_id', $permissionIds)
             ->where('route_name', $routeName)
             ->exists();
+    }
+
+    protected static function booted()
+    {
+        static::saving(function ($user) {
+            if ($user->role_id) {
+                $role = Role::find($user->role_id);
+                $user->role = $role ? $role->name : null;
+            }
+        });
+    }
+
+    public function roleRelation()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
     }
 }

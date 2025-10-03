@@ -69,10 +69,10 @@ class PermissionRouterSeeder extends Seeder
             'delete-users' => ['users.destroy'],
 
             // ✅ User Roles / Designations
-            'view-user-roles'   => ['user.roles.index', 'user.roles.show'],
-            'create-user-roles' => ['user.roles.store'],
-            'edit-user-roles'   => ['user.roles.update'],
-            'delete-user-roles' => ['user.roles.destroy'],
+            'view-user-roles'   => ['user-roles.index', 'user-roles.show'],
+            'create-user-roles' => ['user-roles.store'],
+            'edit-user-roles'   => ['user-roles.update'],
+            'delete-user-roles' => ['user-roles.destroy'],
 
             // ✅ Roles
             'view-roles'   => ['roles.index', 'roles.show'],

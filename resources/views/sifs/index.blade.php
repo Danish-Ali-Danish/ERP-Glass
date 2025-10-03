@@ -21,9 +21,11 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4>All SIFs</h4>
-            <a href="{{ route('sifs.add-new') }}" class="btn btn-primary">
+            @if(hasPermission('sifs.create'))
+            <a href="{{ route('sifs.create') }}" class="btn btn-primary">
                 <i class="las la-plus"></i> New SIF
             </a>
+            @endif
         </div>
         <div class="card-body">
             <table class="table datatables" id="sifsTable" width="100%">

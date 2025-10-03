@@ -266,10 +266,10 @@
                            
 
                                 {{-- User Roles / Designations --}}
-                                @if(hasPermission('user.roles.index'))
+                                @if(hasPermission('user-roles.index'))
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('user.roles.index') ? 'active' : '' }}"
-                                        href="{{ route('user.roles.index') }}">User Designations</a>
+                                    <a class="nav-link {{ request()->routeIs('user-roles.index') ? 'active' : '' }}"
+                                        href="{{ route('user-roles.index') }}">User Designations</a>
                                 </li>
                                 @endif
 

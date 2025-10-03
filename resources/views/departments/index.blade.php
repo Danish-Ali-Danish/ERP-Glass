@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid">
-     <div class="row">
+    <div class="row">
         <div class="col-sm-12">
             <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
                 <h4 class="page-title">Departments</h4>
@@ -11,27 +11,32 @@
                         <li class="breadcrumb-item"><a href="#">Expert Power Glass Ind</a></li>
                         <li class="breadcrumb-item active">Depart inventory</li>
                     </ol>
-                </div>                                
+                </div>
             </div>
         </div>
-    </div>   
-    
-  
-                   
+    </div>
+
+
+
     <!-- DataTable -->
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card">
-               <div class="d-flex justify-content-between align-items-center m-3">
-    <div class="card-header p-0 border-0 bg-transparent">
-        <h4 class="card-title mb-0">Depart inventory</h4>
-    </div>
-    <div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#departmentModal">
-            <i class="fas fa-plus me-1"></i> Add Department
-        </button>
-    </div>
-</div>
+                <div class="d-flex justify-content-between align-items-center m-3">
+                    <div class="card-header p-0 border-0 bg-transparent">
+                        <h4 class="card-title mb-0">Depart inventory</h4>
+                    </div>
+                    <div>
+
+
+
+                        @if(haspermission('departments.create'))
+                        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#departmentModal">
+                            <i class="fas fa-plus me-1"></i> Add Department
+                        </a>
+                        @endif
+                    </div>
+                </div>
 
                 <div class="card-body">
                     <table id="deptTable" class="table datatables">
@@ -39,7 +44,12 @@
                             <tr>
                                 <th>Sr No.</th>
                                 <th>Department Name</th>
-                                <th class="text-center">Action</th>
+                                <th class="text-center">
+                                    @if(hasPermission('departments.edit') || hasPermission('departments.delete'))
+                                    Action
+                                    @endif
+                                </th>
+
                             </tr>
                         </thead>
                     </table>
@@ -51,28 +61,29 @@
 
 <!-- 🔹 Department Modal -->
 <div class="modal fade" id="departmentModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Add Department</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="departform">
-            <input type="hidden" id="deptId">
-            <div class="mb-3">
-                <label class="form-label">Department name</label>
-                <input type="text" class="form-control" id="reqNo" required />
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="cancelEditBtn" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success d-none" id="updateItemBtn">Update</button>
-        <button type="button" class="btn btn-dark" id="addItemBtn">Save</button>
-      </div>
+            <div class="modal-body">
+                <form id="departform">
+                    <input type="hidden" id="deptId">
+                    <div class="mb-3">
+                        <label class="form-label">Department name</label>
+                        <input type="text" class="form-control" id="reqNo" required />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelEditBtn"
+                    data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success d-none" id="updateItemBtn">Update</button>
+                <button type="button" class="btn btn-dark" id="addItemBtn">Save</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 @endsection
 
@@ -92,7 +103,7 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-$(document).ready(function () {
+    $(document).ready(function () {
     $.ajaxSetup({
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
     });
@@ -113,8 +124,12 @@ $(document).ready(function () {
                 className: 'text-center',
                 render: function (data) {
                     return `
+                    @if(haspermission('departments.edit'))
                         <a class="las la-pen text-secondary fs-18 editBtn" data-id="${data}"></a>
+                    @endif
+                    @if(haspermission('departments.destroy'))
                         <a class="las la-trash-alt text-secondary fs-18 deleteBtn" data-id="${data}"></a>
+                    @endif
                     `;
                 }
             }

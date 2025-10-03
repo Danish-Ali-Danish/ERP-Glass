@@ -34,19 +34,30 @@ class SifController extends Controller
                 ->addIndexColumn()
                 ->addColumn('department', fn($row) => $row->department->name ?? '-')
                 ->addColumn('items_count', fn($row) => $row->items->count())
-                ->addColumn('action', function ($row) {
-                    return '
-                        <a href="javascript:void(0)" class="text-secondary fs-18 me-2 viewBtn" data-id="' . $row->id . '" title="Preview">
-                            <i class="las la-eye"></i>
-                        </a>
-                        <a href="/sifs/' . $row->id . '/edit" class="text-secondary fs-18 me-2 editBtn" title="Edit">
-                            <i class="las la-pen"></i>
-                        </a>
-                        <a href="javascript:void(0)" class="text-secondary fs-18 deleteBtn" data-id="' . $row->id . '" title="Delete">
-                            <i class="las la-trash-alt"></i>
-                        </a>
-                    ';
-                })
+               ->addColumn('action', function ($row) {
+    $buttons = '';
+
+  
+        $buttons .= '<a href="javascript:void(0)" class="text-secondary fs-18 me-2 viewBtn" data-id="' . $row->id . '" title="Preview">
+                        <i class="las la-eye"></i>
+                     </a>';
+  
+
+    if (hasPermission('sifs.edit')) {
+        $buttons .= '<a href="/sifs/' . $row->id . '/edit" class="text-secondary fs-18 me-2 editBtn" title="Edit">
+                        <i class="las la-pen"></i>
+                     </a>';
+    }
+
+    if (hasPermission('sifs.destroy ')) {
+        $buttons .= '<a href="javascript:void(0)" class="text-secondary fs-18 deleteBtn" data-id="' . $row->id . '" title="Delete">
+                        <i class="las la-trash-alt"></i>
+                     </a>';
+    }
+
+    return $buttons;
+})
+
                 ->rawColumns(['action'])
                 ->make(true);
         }

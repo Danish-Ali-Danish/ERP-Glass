@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Department;
@@ -11,7 +10,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class GrnController extends Controller
 {
-   
+
     // List all GRNs
     public function index(Request $request)
     {
@@ -32,18 +31,23 @@ class GrnController extends Controller
                 ->addColumn('department', fn($row) => $row->department?->name ?? '-')
                 ->addColumn('project_name', fn($row) => $row->project_name ?? '-')
                 ->addColumn('action', function ($row) {
-                    return '
-                        <a class="text-secondary fs-18 viewBtn" data-id="' . $row->id . '">
-                            <i class="las la-eye"></i>
-                        </a>
-                        <a class="text-secondary fs-18 editBtn" data-id="' . $row->id . '">
-                            <i class="las la-pen"></i>
-                        </a>
-                        <a class="text-secondary fs-18 deleteBtn" data-id="' . $row->id . '">
-                            <i class="las la-trash"></i>
-                        </a>
-                    ';
+                    $buttons = '';
+
+                    
+                        $buttons .= '<a href="javascript:void(0)" class="viewBtn las la-eye text-secondary fs-18 me-2" data-id="' . $row->id . '" title="View"></a>';
+                    
+
+                    if (auth()->user()->hasPermission('grns.edit')) {
+                        $buttons .= '<a href="javascript:void(0)" class="editBtn las la-pen text-secondary fs-18 me-2" data-id="' . $row->id . '" title="Edit"></a>';
+                    }
+
+                    if (auth()->user()->hasPermission('grns.destroy')) {
+                        $buttons .= '<a href="javascript:void(0)" class="deleteBtn las la-trash-alt text-secondary fs-18" data-id="' . $row->id . '" title="Delete"></a>';
+                    }
+
+                    return $buttons ?: ''; // always return string
                 })
+
                 ->rawColumns(['action'])
                 ->make(true);
         }
@@ -61,7 +65,7 @@ class GrnController extends Controller
         $lpos = Lpo::where('grn_generated', 0)
             ->whereNotNull('lpo_no')
             ->where('lpo_no', '!=', '')
-            ->whereNotIn('id', function($query) {
+            ->whereNotIn('id', function ($query) {
                 $query->select('lpo_id')
                     ->from('grns')
                     ->whereNotNull('lpo_id');
@@ -81,12 +85,12 @@ class GrnController extends Controller
     public function getLpoDetails($id)
     {
         $lpo = Lpo::with(['items', 'department'])->findOrFail($id);
-        
+
         // Check if this LPO already has a GRN
         $existingGrn = Grn::where('lpo_id', $id)->first();
         if ($existingGrn) {
             return response()->json([
-                'error' => 'This LPO already has a GRN created. Please select another LPO.'
+                'error' => 'This LPO already has a GRN created. Please select another LPO.',
             ], 422);
         }
 
@@ -134,7 +138,7 @@ class GrnController extends Controller
         $existingGrn = Grn::where('lpo_id', $request->lpo_id)->first();
         if ($existingGrn) {
             return response()->json([
-                'message' => 'This LPO already has a GRN created.'
+                'message' => 'This LPO already has a GRN created.',
             ], 422);
         }
 
@@ -194,12 +198,12 @@ class GrnController extends Controller
         // ✅ sirf wo LPOs show karo jinke liye GRN abhi tak nahi bana
         // plus current GRN ka LPO allow karo (taake edit ho sake)
         $lpos = Lpo::where(function ($query) use ($grn) {
-                $query->where('grn_generated', 0)
-                      ->orWhere('id', $grn->lpo_id);
-            })
+            $query->where('grn_generated', 0)
+                ->orWhere('id', $grn->lpo_id);
+        })
             ->whereNotNull('lpo_no')
             ->where('lpo_no', '!=', '')
-            ->whereNotIn('id', function($query) use ($grn) {
+            ->whereNotIn('id', function ($query) use ($grn) {
                 $query->select('lpo_id')
                     ->from('grns')
                     ->whereNotNull('lpo_id')
@@ -239,7 +243,7 @@ class GrnController extends Controller
 
         DB::transaction(function () use ($request, $grn) {
             $oldLpoId = $grn->lpo_id;
-            $lpo = Lpo::findOrFail($request->lpo_id);
+            $lpo      = Lpo::findOrFail($request->lpo_id);
 
             if ($lpo->grn_generated && $lpo->id !== $oldLpoId) {
                 abort(400, "This LPO already has a GRN.");

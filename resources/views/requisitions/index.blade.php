@@ -18,9 +18,11 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4>All Requisitions</h4>
-            <a href="{{ route('requisitions.add-new') }}" class="btn btn-primary">
+            @if(hasPermission('requisitions.create'))
+            <a href="{{ route('requisitions.create') }}" class="btn btn-primary">
                 <i class="las la-plus"></i> New Requisition
             </a>
+            @endif
         </div>
         <div class="card-body">
             <table class="table datatables" id="requisitionsTable" width="100%">
