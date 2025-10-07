@@ -1,124 +1,137 @@
 @extends('layouts.master')
 @section('content')
 <div class="container-fluid">
-
-    <!-- General Info -->
     <form id="quotationForm">
         @csrf
-        <div class="row g-3">
-            <div class="col-12">
-                <div class="card mb-3 shadow-sm">
-                    <div class="card-header">Quotation Information</div>
-                    <div class="card-body row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label">Quotation No</label>
-                            <input type="text" class="form-control" id="quoteNo" required value="{{ $quoteNo }}" readonly />
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Date</label>
-                            <input type="date" class="form-control" id="date" required />
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Company Name</label>
-                            <input type="text" class="form-control" id="companyName" required />
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Project Name</label>
-                            <input type="text" class="form-control" id="projectName" />
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Location</label>
-                            <input type="text" class="form-control" id="location" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Terms & Conditions</label>
-                            <textarea class="form-control" id="terms" rows="2"></textarea>
-                        </div>
-                    </div>
+        <div class="card mb-3 shadow-sm">
+            <div class="card-header">Quotation Information</div>
+            <div class="card-body row g-3">
+                <div class="col-md-3">
+                    <label>Quotation No</label>
+                    <input type="text" id="quoteNo" class="form-control" value="{{ $quoteNo }}" readonly>
+                </div>
+                <div class="col-md-3">
+                    <label>Date</label>
+                    <input type="date" id="date" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Company Name</label>
+                    <input type="text" id="companyName" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label>Project Name</label>
+                    <input type="text" id="projectName" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label>Location</label>
+                    <input type="text" id="location" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label>Terms & Conditions</label>
+                    <textarea id="terms" class="form-control" rows="2"></textarea>
                 </div>
             </div>
         </div>
     </form>
 
-    <!-- Item Form -->
     <form id="itemForm" class="mb-3">
-        <div class="row g-3">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header">Add Items</div>
-                    <div class="card-body row g-3">
+        <div class="card shadow-sm">
+            <div class="card-header">Add Items</div>
+            <div class="card-body row g-3">
+                <div class="col-md-3 position-relative">
+                    <label>Description / Code</label>
+                    <input type="text" id="itemDescInput" class="form-control" placeholder="Type to search description or type #code...">
+                    <div class="dropdown-menu search-dropdown"></div>
+                </div>
 
-                        <div class="col-md-3 position-relative">
-                            <label>Description</label>
-                            <input type="text" class="form-control" id="itemDescInput" placeholder="Search Description...">
-                            <div class="dropdown-menu search-dropdown"></div>
-                        </div>
+                <div class="col-md-2">
+                    <label>Item Code</label>
+                    <input type="text" id="itemCode" class="form-control" readonly>
+                </div>
 
-                        <div class="col-md-2">
-                            <label>UOM</label>
-                            <input type="text" class="form-control" id="itemUnit" readonly>
-                        </div>
+                <div class="col-md-1">
+                    <label>UOM</label>
+                    <input type="text" id="itemUnit" class="form-control" readonly>
+                </div>
 
-                        <div class="col-md-2">
-                            <label>Quantity</label>
-                            <input type="number" class="form-control" id="itemQty">
-                        </div>
+                <div class="col-md-1">
+                    <label>Size</label>
+                    <input type="text" id="itemSize" class="form-control" readonly>
+                </div>
 
-                        <div class="col-md-2">
-                            <label>Unit Price</label>
-                            <input type="number" class="form-control" id="itemPrice" step="0.01">
-                        </div>
+                <div class="col-md-1">
+                    <label>Color</label>
+                    <input type="text" id="itemColor" class="form-control" readonly>
+                </div>
 
-                        <div class="col-md-2">
-                            <label>Total</label>
-                            <input type="number" class="form-control" id="itemTotal" readonly>
-                        </div>
+                <div class="col-md-1">
+                    <label>Type</label>
+                    <input type="text" id="itemType" class="form-control" readonly>
+                </div>
 
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100" id="addItemBtn">Add</button>
-                        </div>
+                <div class="col-md-2">
+                    <label>Remarks</label>
+                    <input type="text" id="itemRemarks" class="form-control" readonly>
+                </div>
 
-                    </div>
+                <div class="col-md-2">
+                    <label>Quantity</label>
+                    <input type="number" id="itemQty" class="form-control">
+                </div>
+
+                <div class="col-md-2">
+                    <label>Unit Price</label>
+                    <input type="number" id="itemPrice" class="form-control" step="0.01">
+                </div>
+
+                <div class="col-md-2">
+                    <label>Total</label>
+                    <input type="number" id="itemTotal" class="form-control" readonly>
+                </div>
+
+                <div class="col-md-1 d-flex align-items-end">
+                    <button id="addItemBtn" class="btn btn-primary w-100">Add</button>
                 </div>
             </div>
         </div>
     </form>
 
-    <!-- Items Table -->
-    <div class="row g-3">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header">Quotation Items</div>
-                <div class="card-body">
-                    <table class="table table-bordered" id="itemsTable">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Description</th>
-                                <th>UOM</th>
-                                <th>Qty</th>
-                                <th>Unit Price</th>
-                                <th>Total</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+    <div class="card shadow-sm mb-3">
+        <div class="card-header">Quotation Items</div>
+        <div class="card-body">
+            <table class="table table-bordered" id="itemsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>UOM</th>
+                        <th>Size</th>
+                        <th>Color</th>
+                        <th>Type</th>
+                        <th>Remarks</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="text-end">
+                <h5>Subtotal: <span id="subtotal">0.00</span></h5>
+                <h5>VAT (5%): <span id="vat">0.00</span></h5>
+                <h4>Grand Total: <span id="grandtotal">0.00</span></h4>
             </div>
         </div>
     </div>
 
-    <button class="btn btn-success mt-3" id="saveQuotationBtn">Save Quotation</button>
-
+    <button id="saveQuotationBtn" class="btn btn-success">Save Quotation</button>
 </div>
 
 <style>
-.search-dropdown {
-    width: 90%;
-    max-height: 200px;
-    overflow-y: auto;
-}
+.search-dropdown { width: 95%; max-height: 220px; overflow-y:auto; }
 .position-relative { position: relative; }
 .dropdown-item { cursor: pointer; }
 </style>
@@ -126,203 +139,225 @@
 
 @section('scripts')
 <script>
-$(document).ready(function(){
-
+$(function(){
     let items = [];
     let editIndex = null;
     let selectedItem = null;
 
+    function recalcTotals(){
+        let st = 0;
+        items.forEach(i => st += parseFloat(i.total || 0));
+        let vat = st * 0.05;
+        let gt = st + vat;
+        $('#subtotal').text(st.toFixed(2));
+        $('#vat').text(vat.toFixed(2));
+        $('#grandtotal').text(gt.toFixed(2));
+    }
+
     function renderItemsTable(){
-        let tbody = $('#itemsTable tbody');
-        tbody.html('');
-        items.forEach((item,index)=>{
+        let tbody = $('#itemsTable tbody').empty();
+        items.forEach((it, idx) => {
             tbody.append(`
                 <tr>
-                    <td>${index+1}</td>
-                    <td>${item.description}</td>
-                    <td>${item.unit}</td>
-                    <td>${item.quantity}</td>
-                    <td>${item.unit_price}</td>
-                    <td>${item.total.toFixed(2)}</td>
+                    <td>${idx+1}</td>
+                    <td>${it.item_code || ''}</td>
+                    <td>${it.description || ''}</td>
+                    <td>${it.uom || ''}</td>
+                    <td>${it.size || ''}</td>
+                    <td>${it.color || ''}</td>
+                    <td>${it.type || ''}</td>
+                    <td>${it.remarks || ''}</td>
+                    <td>${it.quantity}</td>
+                    <td>${it.unit_price}</td>
+                    <td>${parseFloat(it.total).toFixed(2)}</td>
                     <td class="text-center">
-                        <a class="las la-pen text-secondary fs-18 me-2 editItemBtn" data-index="${index}"></a>
-                        <a class="las la-trash-alt text-secondary fs-18 deleteItemBtn" data-index="${index}"></a>
+                        <a href="javascript:void(0)" class="editItemBtn" data-index="${idx}">Edit</a>
+                        &nbsp;
+                        <a href="javascript:void(0)" class="deleteItemBtn" data-index="${idx}">Delete</a>
                     </td>
                 </tr>
             `);
         });
+        recalcTotals();
     }
 
-    // Auto calculate total
+    function resetItemForm(){
+        $('#itemForm')[0].reset();
+        $('#itemTotal').val('');
+        selectedItem = null;
+        editIndex = null;
+        $('#addItemBtn').text('Add');
+    }
+
     $('#itemQty, #itemPrice').on('input', function(){
         let qty = parseFloat($('#itemQty').val()) || 0;
         let price = parseFloat($('#itemPrice').val()) || 0;
-        $('#itemTotal').val((qty*price).toFixed(2));
+        $('#itemTotal').val((qty * price).toFixed(2));
     });
 
-    // --- Live Search for Items (Description) ---
+    // Live search helper: supports searching by code when user types starts with '#' e.g. "#GLS-00010"
     function fetchItems(query, callback){
-        $.get("{{ route('requisitions.items.search') }}", { q:query, type:'desc' }, function(res){
-            callback(res.results || []);
-        });
+        if (!query || query.trim().length < 1) return callback([]);
+        let type = 'description';
+        if (query.startsWith('#')) {
+            query = query.substring(1);
+            type = 'code';
+        }
+        $.get("{{ route('items.search') }}", { q: query, type: type })
+            .done(function(res){
+                callback(res.results || []);
+            })
+            .fail(function(){ callback([]); });
     }
 
-    function setupDropdown(inputSelector){
-        let input = $(inputSelector);
-        let dropdown = input.siblings('.search-dropdown');
-        let activeIndex = -1;
+    function setupDropdown(){
+        let $input = $('#itemDescInput');
+        let $dropdown = $input.siblings('.search-dropdown');
+        let active = -1;
 
-        function showResults(query){
-            fetchItems(query, function(results){
-                dropdown.html('');
-                activeIndex = -1;
-                if(results.length){
-                    results.forEach((r,i)=>{
-                        dropdown.append(`
-                            <a class="dropdown-item"
-                               data-id="${r.id}"
-                               data-code="${r.item_code}"
-                               data-desc="${r.description}"
-                               data-unit="${r.uom}">
-                               ${r.description}
-                            </a>`);
-                    });
-                    dropdown.addClass('show');
-                } else {
-                    dropdown.removeClass('show');
-                }
+        function show(q){
+            fetchItems(q, function(results){
+                $dropdown.html('');
+                active = -1;
+                if (!results.length) { $dropdown.removeClass('show'); return; }
+                results.forEach((r,i) => {
+                    $dropdown.append(`<a class="dropdown-item" data-index="${i}"
+                        data-id="${r.id}"
+                        data-code="${r.item_code||''}"
+                        data-desc="${r.description||''}"
+                        data-uom="${r.uom||''}"
+                        data-size="${r.size||''}"
+                        data-color="${r.color||''}"
+                        data-type="${r.type||''}"
+                        data-remarks="${r.remarks||''}"
+                        >${r.item_code ? '['+r.item_code+'] ' : ''}${r.description}</a>`);
+                });
+                $dropdown.addClass('show');
             });
         }
 
-        input.on('focus', function(){
-            let query = $(this).val();
-            showResults(query);
+        $input.on('input focus', function(){ show($(this).val()); });
+
+        $input.on('keydown', function(e){
+            let opts = $dropdown.find('.dropdown-item');
+            if (!opts.length) return;
+            if (e.key === 'ArrowDown'){ e.preventDefault(); active = (active+1) % opts.length; opts.removeClass('active'); $(opts[active]).addClass('active'); }
+            else if (e.key === 'ArrowUp'){ e.preventDefault(); active = (active-1+opts.length) % opts.length; opts.removeClass('active'); $(opts[active]).addClass('active'); }
+            else if (e.key === 'Enter'){ e.preventDefault(); if (active >= 0) $(opts[active]).trigger('click'); }
         });
 
-        input.on('input', function(){
-            let query = $(this).val();
-            showResults(query);
-        });
-
-        input.on('keydown', function(e){
-            let options = dropdown.find('.dropdown-item');
-            if(!options.length) return;
-            if(e.key === 'ArrowDown'){
-                e.preventDefault();
-                activeIndex = (activeIndex + 1) % options.length;
-                options.removeClass('active');
-                $(options[activeIndex]).addClass('active');
-            } else if(e.key === 'ArrowUp'){
-                e.preventDefault();
-                activeIndex = (activeIndex - 1 + options.length) % options.length;
-                options.removeClass('active');
-                $(options[activeIndex]).addClass('active');
-            } else if(e.key === 'Enter'){
-                e.preventDefault();
-                if(activeIndex>=0){
-                    $(options[activeIndex]).trigger('click');
-                    dropdown.removeClass('show');
-                }
-            }
-        });
-
-        dropdown.on('click','.dropdown-item', function(){
+        $dropdown.on('click', '.dropdown-item', function(){
             selectedItem = {
                 id: $(this).data('id'),
                 item_code: $(this).data('code'),
                 description: $(this).data('desc'),
-                unit: $(this).data('unit')
+                uom: $(this).data('uom'),
+                size: $(this).data('size'),
+                color: $(this).data('color'),
+                type: $(this).data('type'),
+                remarks: $(this).data('remarks')
             };
+            $('#itemCode').val(selectedItem.item_code);
             $('#itemDescInput').val(selectedItem.description);
-            $('#itemUnit').val(selectedItem.unit);
-            dropdown.removeClass('show');
+            $('#itemUnit').val(selectedItem.uom);
+            $('#itemSize').val(selectedItem.size);
+            $('#itemColor').val(selectedItem.color);
+            $('#itemType').val(selectedItem.type);
+            $('#itemRemarks').val(selectedItem.remarks);
+            $dropdown.removeClass('show');
         });
 
         $(document).on('click', function(e){
-            if(!$(e.target).closest(inputSelector+', .search-dropdown').length){
-                dropdown.removeClass('show');
+            if (!$(e.target).closest('#itemDescInput, .search-dropdown').length) {
+                $dropdown.removeClass('show');
             }
         });
     }
 
-    setupDropdown('#itemDescInput');
+    setupDropdown();
 
-    // Add / Update Item
-    $('#itemForm').submit(function(e){
+    $('#itemForm').on('submit', function(e){
         e.preventDefault();
-        let qty = parseFloat($('#itemQty').val());
-        let price = parseFloat($('#itemPrice').val());
-        let total = qty*price;
-
-        if(!selectedItem || qty<=0 || price<=0){
-            Swal.fire('Error','Fill item details properly','error');
-            return;
+        let qty = parseFloat($('#itemQty').val()) || 0;
+        let price = parseFloat($('#itemPrice').val()) || 0;
+        if (!selectedItem || qty <= 0 || price < 0) {
+            Swal.fire('Error','Please select an item and enter qty & price','error'); return;
         }
 
-        let newItem = {
-            description: selectedItem.description,
-            unit: selectedItem.unit,
+        let row = {
+            item_id: selectedItem.id || null,
+            item_code: $('#itemCode').val() || selectedItem.item_code,
+            description: $('#itemDescInput').val(),
+            uom: $('#itemUnit').val(),
+            size: $('#itemSize').val(),
+            color: $('#itemColor').val(),
+            type: $('#itemType').val(),
+            remarks: $('#itemRemarks').val(),
             quantity: qty,
             unit_price: price,
-            total: total
+            total: parseFloat((qty * price).toFixed(2))
         };
 
-        if(editIndex!==null){
-            items[editIndex] = newItem;
+        if (editIndex !== null) {
+            items[editIndex] = row;
             editIndex = null;
             $('#addItemBtn').text('Add');
         } else {
-            items.push(newItem);
+            items.push(row);
         }
 
         renderItemsTable();
-        $('#itemForm')[0].reset();
-        $('#itemTotal').val('');
-        selectedItem = null;
+        resetItemForm();
     });
 
-    // Edit / Delete
-    $('#itemsTable').on('click','.editItemBtn', function(){
-        let index = $(this).data('index');
-        let item = items[index];
-        $('#itemDescInput').val(item.description);
-        $('#itemUnit').val(item.unit);
-        $('#itemQty').val(item.quantity);
-        $('#itemPrice').val(item.unit_price);
-        $('#itemTotal').val(item.total.toFixed(2));
-        selectedItem = item;
-        editIndex = index;
+    $('#itemsTable').on('click', '.editItemBtn', function(){
+        let idx = $(this).data('index');
+        let it = items[idx];
+        $('#itemCode').val(it.item_code);
+        $('#itemDescInput').val(it.description);
+        $('#itemUnit').val(it.uom);
+        $('#itemSize').val(it.size);
+        $('#itemColor').val(it.color);
+        $('#itemType').val(it.type);
+        $('#itemRemarks').val(it.remarks);
+        $('#itemQty').val(it.quantity);
+        $('#itemPrice').val(it.unit_price);
+        $('#itemTotal').val(it.total.toFixed(2));
+        selectedItem = it;
+        editIndex = idx;
         $('#addItemBtn').text('Update');
     });
 
-    $('#itemsTable').on('click','.deleteItemBtn', function(){
-        let index = $(this).data('index');
-        items.splice(index,1);
+    $('#itemsTable').on('click', '.deleteItemBtn', function(){
+        let idx = $(this).data('index');
+        items.splice(idx,1);
         renderItemsTable();
     });
 
-    // Save Quotation
-    $('#saveQuotationBtn').click(function(){
-        if(items.length===0){ Swal.fire('Error','Add at least one item','error'); return; }
+    $('#saveQuotationBtn').on('click', function(){
+        if (!items.length) { Swal.fire('Error','Add at least 1 item','error'); return; }
 
         $.post("{{ route('quotations.store') }}", {
             _token: '{{ csrf_token() }}',
-            quote_no: $('#quoteNo').val(),
             date: $('#date').val(),
             company_name: $('#companyName').val(),
             project_name: $('#projectName').val(),
             location: $('#location').val(),
             terms: $('#terms').val(),
             items: items
-        }, function(res){
-            Swal.fire('Success',res.message,'success');
-            items=[];
-            renderItemsTable();
-            $('#quotationForm')[0].reset();
-            $('#itemForm')[0].reset();
-            $('#itemTotal').val('');
-        }).fail(function(err){
-            Swal.fire('Error','Validation failed','error');
+        }).done(function(res){
+            Swal.fire('Success', res.message, 'success');
+            // reset whole form
+            items = []; renderItemsTable(); $('#quotationForm')[0].reset(); resetItemForm();
+            $('#subtotal,#vat,#grandtotal').text('0.00');
+        }).fail(function(xhr){
+            if (xhr.status === 422) {
+                let err = xhr.responseJSON.errors;
+                let msgs = Object.values(err).map(v => v.join(', ')).join('<br>');
+                Swal.fire('Validation Error', msgs, 'error');
+            } else {
+                Swal.fire('Error','Something went wrong','error');
+            }
         });
     });
 

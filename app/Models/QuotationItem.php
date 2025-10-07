@@ -7,6 +7,8 @@ class QuotationItem extends Model
 {
     protected $fillable = [
         'quotation_id', 'item_id', 'description', 'unit',
+        'size', 'color', 'type', 'remarks',
+
         'quantity', 'unit_price', 'total',
     ];
 
@@ -17,6 +19,7 @@ class QuotationItem extends Model
 
     public function item()
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Item::class, 'item_id');
     }
+
 }

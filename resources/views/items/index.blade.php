@@ -32,7 +32,6 @@
                         </button>
                         @endif
                     </div>
-
                 </div>
 
                 <div class="card-body">
@@ -43,11 +42,14 @@
                                 <th>Item Code</th>
                                 <th>Description</th>
                                 <th>UOM</th>
+                                <th>Size</th>
+                                <th>Color</th>
+                                <th>Type</th>
                                 <th>Remarks</th>
                                 <th class="text-center">
                                     @if(hasPermission('items.edit') || hasPermission('items.destroy'))
                                     Action
-                                @endif
+                                    @endif
                                 </th>
                             </tr>
                         </thead>
@@ -58,10 +60,9 @@
     </div>
 </div>
 
-<!-- Item Modal -->
-<!-- Item Modal -->
+<!-- ================= Item Modal ================= -->
 <div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg"> <!-- modal-lg for better layout -->
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Item</h5>
@@ -70,34 +71,53 @@
             <div class="modal-body">
                 <form id="itemForm">
                     <input type="hidden" id="itemId">
-                    <div class="mb-3">
-                        <label class="form-label">Item Code</label>
-                        <input type="text" class="form-control" id="itemCode" readonly />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <input type="text" class="form-control" id="description" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">UOM</label>
-                        <select class="form-select" id="uom" required>
-                            <option value="">-- Select UOM --</option>
-                            <option value="NOS">NOS</option>
-                            <option value="SET">SET</option>
-                            <option value="PCS">PCS</option>
-                            <option value="PKT">PKT</option>
-                            <option value="SQM">SQM</option>
-                            <option value="PAIR">PAIR</option>
-                            <option value="KG">KG</option>
-                            <option value="MTR">MTR</option>
-                            <option value="LTR">LTR</option>
-                            <option value="LM">LM</option>
-                            <option value="BOX">BOX</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Remarks</label>
-                        <input type="text" class="form-control" id="remarks" />
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Item Code</label>
+                            <input type="text" class="form-control" id="itemCode" readonly />
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" id="description" required />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">UOM</label>
+                            <select class="form-select" id="uom" required>
+                                <option value="">-- Select UOM --</option>
+                                <option value="NOS">NOS</option>
+                                <option value="SET">SET</option>
+                                <option value="PCS">PCS</option>
+                                <option value="PKT">PKT</option>
+                                <option value="SQM">SQM</option>
+                                <option value="PAIR">PAIR</option>
+                                <option value="KG">KG</option>
+                                <option value="MTR">MTR</option>
+                                <option value="LTR">LTR</option>
+                                <option value="LM">LM</option>
+                                <option value="BOX">BOX</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Size</label>
+                            <input type="text" class="form-control" id="size" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Color</label>
+                            <input type="text" class="form-control" id="color" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Type</label>
+                            <input type="text" class="form-control" id="type" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Remarks</label>
+                            <input type="text" class="form-control" id="remarks" />
+                        </div>
                     </div>
                 </form>
             </div>
@@ -120,7 +140,7 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-    $(function () {
+$(function () {
     $.ajaxSetup({
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
     });
@@ -134,49 +154,52 @@
             { data: 'item_code', name: 'item_code' },
             { data: 'description', name: 'description' },
             { data: 'uom', name: 'uom' },
+            { data: 'size', name: 'size' },
+            { data: 'color', name: 'color' },
+            { data: 'type', name: 'type' },
             { data: 'remarks', name: 'remarks' },
-            { data: 'id', orderable: false, searchable: false, className: 'text-center',
-               render: function (data) {
-    return `
-        @if(hasPermission('items.edit'))
-        <a class="las la-pen text-secondary fs-18 editBtn" data-id="${data}"></a>
-        @endif
-        @if(hasPermission('items.destroy'))
-        <a class="las la-trash-alt text-secondary fs-18 deleteBtn" data-id="${data}"></a>
-        @endif
-    `;
-}
-
+            { 
+                data: 'id', 
+                orderable: false, 
+                searchable: false, 
+                className: 'text-center',
+                render: function (data) {
+                    return `
+                        @if(hasPermission('items.edit'))
+                        <a class="las la-pen text-secondary fs-18 editBtn" data-id="${data}"></a>
+                        @endif
+                        @if(hasPermission('items.destroy'))
+                        <a class="las la-trash-alt text-secondary fs-18 deleteBtn" data-id="${data}"></a>
+                        @endif
+                    `;
+                }
             }
         ]
     });
 
     function resetForm() {
-        $('#itemId').val('');
-        $('#description').val('');
-        $('#uom').val('');
-        $('#remarks').val('');
-        $('#itemCode').val('');
+        $('#itemId, #description, #uom, #remarks, #itemCode, #size, #color, #type').val('');
         $('#addItemBtn').removeClass('d-none');
         $('#updateItemBtn').addClass('d-none');
         $('.modal-title').text('Add Item');
     }
 
-    // 🔹 Modal Open + Auto Generate Code
+    // Open Modal + Auto Generate Code
     $('#openItemModal').on('click', function () {
         $.get('{{ route("items.index") }}?getCode=1', function (res) {
-            if (res.success) {
-                $('#itemCode').val(res.code);
-            }
+            if (res.success) $('#itemCode').val(res.code);
             $('#itemModal').modal('show');
         });
     });
 
-    // 🔹 Add Item
+    // Add Item
     $('#addItemBtn').on('click', function () {
         $.post('{{ route("items.store") }}', {
             description: $('#description').val(),
             uom: $('#uom').val(),
+            size: $('#size').val(),
+            color: $('#color').val(),
+            type: $('#type').val(),
             remarks: $('#remarks').val()
         }).done((res) => {
             Swal.fire('Success', res.message, 'success');
@@ -188,16 +211,20 @@
         });
     });
 
-    // 🔹 Edit Item
+    // Edit Item
     $(document).on('click', '.editBtn', function () {
         const id = $(this).data('id');
         $.get(`/items/${id}`, function (res) {
             if (res.success) {
-                $('#itemId').val(res.data.id);
-                $('#itemCode').val(res.data.item_code);
-                $('#description').val(res.data.description);
-                $('#uom').val(res.data.uom);
-                $('#remarks').val(res.data.remarks);
+                const item = res.data;
+                $('#itemId').val(item.id);
+                $('#itemCode').val(item.item_code);
+                $('#description').val(item.description);
+                $('#uom').val(item.uom);
+                $('#size').val(item.size);
+                $('#color').val(item.color);
+                $('#type').val(item.type);
+                $('#remarks').val(item.remarks);
                 $('#addItemBtn').addClass('d-none');
                 $('#updateItemBtn').removeClass('d-none');
                 $('.modal-title').text('Edit Item');
@@ -206,7 +233,7 @@
         });
     });
 
-    // 🔹 Update Item
+    // Update Item
     $('#updateItemBtn').on('click', function () {
         const id = $('#itemId').val();
         $.ajax({
@@ -215,6 +242,9 @@
             data: {
                 description: $('#description').val(),
                 uom: $('#uom').val(),
+                size: $('#size').val(),
+                color: $('#color').val(),
+                type: $('#type').val(),
                 remarks: $('#remarks').val()
             },
             success: function (res) {
@@ -229,7 +259,7 @@
         });
     });
 
-    // 🔹 Delete Item
+    // Delete Item
     $(document).on('click', '.deleteBtn', function () {
         const id = $(this).data('id');
         Swal.fire({

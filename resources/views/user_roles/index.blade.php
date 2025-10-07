@@ -1,61 +1,87 @@
 @extends('layouts.master')
 
 @section('content')
-<div class="container py-4">
-    <h2>User Roles Management</h2>
-
-    <button class="btn btn-primary mb-3" id="addRoleBtn">Add Role</button>
-
-    <table class="table datatables " id="rolesTable" style="width:100%"> 
-        <thead class="table-light">
-            <tr>
-                <th>SR.</th>
-                <th>User Name</th>
-                <th>Designation</th>
-                <th>Status</th>
-                <th class="text-center">Action</th>
-            </tr>
-        </thead>
-    </table>
-</div>
-
-<div class="modal fade" id="roleModal" tabindex="-1">
-    <div class="modal-dialog">
-        <form id="roleForm">
-            @csrf
-            <input type="hidden" name="id" id="role_id_hidden">
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Add User Role</h5>
-                </div>
-                <div class="modal-body">
-                    <input type="text" name="name" id="name" class="form-control mb-2" placeholder="User Name">
-
-                    <select name="role_id" id="role_id" class="form-control mb-2">
-                        <option value="">Select Role</option>
-                        @foreach($roles as $role)
-                        <option value="{{ $role->id }}"> {{ $role->name }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="status" id="status" class="form-control mb-2">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success" id="saveBtn">Save</button>
-                </div>
+<div class="container-fluid px-4 py-4" style="max-width: 1200px;">
+    <header class="mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="">
+                <h4 class="page-title">User Designation Management</h4>
             </div>
-        </form>
-    </div>
-</div>
-@endsection
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Users Designation</li>
+                </ol>
+            </nav>
+        </div>
+    </header>
 
-@section('scripts')
-<script>
-    $(function() {
+    <div class="card shadow-sm">
+        <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+            <span class="fw-bold">User Designation List</span>
+            @if(hasPermission('user-roles.store'))
+            <button class="btn btn-primary btn-sm" id="addRoleBtn">
+                <i class="las la-plus"></i> Add User Designation
+            </button>
+            @endif
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table datatables " id="rolesTable" style="width:100%">
+                    <thead class="table-light">
+                        <tr>
+                            <th>SR.</th>
+                            <th>User Name</th>
+                            <th>Designation</th>
+                            <th>Status</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="roleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <form id="roleForm">
+                @csrf
+                <input type="hidden" name="id" id="role_id_hidden">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Add User Role</h5>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" name="name" id="name" class="form-control mb-2" placeholder="User Name">
+
+                        <select name="role_id" id="role_id" class="form-control mb-2">
+                            <option value="">Select Role</option>
+                            @foreach($roles as $role)
+                            <option value="{{ $role->id }}"> {{ $role->name }}</option>
+                            @endforeach
+                        </select>
+
+                        <select name="status" id="status" class="form-control mb-2">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success" id="saveBtn">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endsection
+
+    @section('scripts')
+    <script>
+        $(function() {
     let table = $('#rolesTable').DataTable({
         processing: true,
         serverSide: true,
@@ -140,5 +166,5 @@
         });
     });
 });
-</script>
-@endsection
+    </script>
+    @endsection

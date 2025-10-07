@@ -1,22 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
-
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\RequisitionController;
-use App\Http\Controllers\LpoController;
-use App\Http\Controllers\ItemController;
-use App\Http\Controllers\GrnController;
-use App\Http\Controllers\SifController;
-use App\Http\Controllers\WorkOrderController;
-use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\GrnController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LpoController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\RequisitionController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SifController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserRoleController;
-use App\Http\Controllers\PermissionController;
-
+use App\Http\Controllers\WorkOrderController;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
 
 // =========================
 // 🔓 Public Routes
@@ -42,7 +40,6 @@ Route::get('/config-cache', fn() => tap(Artisan::call('config:cache'), fn() => p
 Route::get('/config-clear', fn() => tap(Artisan::call('config:clear'), fn() => print "Config cache cleared"));
 Route::get('/cache-clear', fn() => tap(Artisan::call('cache:clear'), fn() => print "App cache cleared"));
 
-
 // =========================
 // 🔒 Protected Routes (auth + permission)
 // =========================
@@ -59,7 +56,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
     // Requisitions
     Route::get('/requisitions/add-new', [RequisitionController::class, 'create'])->name('requisitions.create');
     Route::get('/requisitions/data', [RequisitionController::class, 'data'])->name('requisitions.data');
-    Route::get('requisitions/items/search', [RequisitionController::class,'searchItems'])->name('requisitions.items.search');
+    Route::get('requisitions/items/search', [RequisitionController::class, 'searchItems'])->name('requisitions.items.search');
     Route::resource('requisitions', RequisitionController::class)->except(['create']);
 
     // LPOs
@@ -68,11 +65,12 @@ Route::middleware(['auth', 'permission'])->group(function () {
 
     // Items
     Route::resource('items', ItemController::class);
+    Route::get('/items/search', [ItemController::class, 'search'])->name('items.search');
 
     // GRNs
-    Route::get('lpo/{id}/details', [GrnController::class, 'getLpoDetails'])->name('grns.lpo.details');
-    Route::resource('grns', GrnController::class);
 
+    Route::resource('grns', GrnController::class);
+    Route::get('lpo/{id}/details', [GrnController::class, 'getLpoDetails'])->name('grns.lpo.details');
     // SIFs
     Route::resource('sifs', SifController::class);
 
@@ -81,7 +79,14 @@ Route::middleware(['auth', 'permission'])->group(function () {
     Route::resource('workorders', WorkOrderController::class);
 
     // Quotations
+    Route::get('quotations/search', [QuotationController::class, 'search'])->name('quotations.search');
+    Route::get('/quotations/search', [QuotationController::class, 'search'])->name('quotations.search');
+
+
+   Route::middleware(['auth'])->group(function() {
     Route::resource('quotations', QuotationController::class);
+});
+
 
     // Users
     Route::resource('users', UserController::class);
@@ -90,7 +95,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
 
     // User Roles
     Route::get('/user-role/search-users', [UserRoleController::class, 'searchUsers'])->name('user-role.search');
-    Route::resource('user-roles', UserRoleController::class)->except(['create','edit']);
+    Route::resource('user-roles', UserRoleController::class)->except(['create', 'edit']);
 
     // Roles
     Route::resource('roles', RoleController::class);
@@ -105,4 +110,3 @@ Route::middleware(['auth', 'permission'])->group(function () {
     Route::post('/permissions/{permission}/add-router', [PermissionController::class, 'addRouter'])->name('permissions.addRouter');
     Route::delete('/permission-routers/{permissionRouter}', [PermissionController::class, 'removeRouter'])->name('permissions.removeRouter');
 });
-

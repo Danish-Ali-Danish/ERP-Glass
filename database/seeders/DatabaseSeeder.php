@@ -9,6 +9,7 @@ class DatabaseSeeder extends Seeder
     {
 
         $this->call([
+            ItemSeeder::class,
             DepartmentSeeder::class,
             RequisitionSeeder::class,
             LpoSeeder::class,
@@ -21,7 +22,7 @@ class DatabaseSeeder extends Seeder
             PermissionRouterSeeder::class,
             QuotationSeeder::class,
             QuotationItemSeeder::class,
-            ItemSeeder::class,
+            
         ]);
     }
 }

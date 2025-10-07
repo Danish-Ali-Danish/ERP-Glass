@@ -7,7 +7,7 @@
     <header class="mb-4">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
             <div class="mb-2 mb-md-0">
-                <h1 class="display-6 fw-bold text-dark">User Management</h1>
+                <h4 class="page-title">User Management</h4>
                 <p class="text-muted mb-0">Manage system users and their information</p>
             </div>
             <nav aria-label="breadcrumb">

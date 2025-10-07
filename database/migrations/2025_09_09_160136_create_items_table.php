@@ -16,10 +16,12 @@ return new class extends Migration
             $table->string('item_code')->unique(); // auto generate hoga
             $table->string('description');
             $table->string('uom', 50);
+            $table->string('size')->nullable();   // ✅ new
+            $table->string('color')->nullable();  // ✅ new
+            $table->string('type')->nullable();   // ✅ new
             $table->text('remarks')->nullable();
             $table->timestamps();
         });
-
     }
 
     /**
